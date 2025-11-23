@@ -57,14 +57,14 @@ function UILibrary.new(title)
     loadingFrame.Name = "LoadingScreen"
     loadingFrame.Size = UDim2.new(1, 0, 1, 0)
     loadingFrame.Position = UDim2.new(0, 0, 0, 0)
-    loadingFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    loadingFrame.BackgroundTransparency = 1
     loadingFrame.BorderSizePixel = 0
     loadingFrame.ZIndex = 100
     loadingFrame.Parent = self.ScreenGui
     
     local loadingContainer = Instance.new("Frame")
-    loadingContainer.Size = UDim2.new(0, 400, 0, 100)
-    loadingContainer.Position = UDim2.new(0.5, -200, 0.5, -50)
+    loadingContainer.Size = UDim2.new(0, 400, 0, 120)
+    loadingContainer.Position = UDim2.new(0.5, -200, 0.5, -60)
     loadingContainer.BackgroundColor3 = Theme.Secondary
     loadingContainer.BorderSizePixel = 0
     loadingContainer.ZIndex = 101
@@ -94,6 +94,17 @@ function UILibrary.new(title)
     loadingLabel.Font = Enum.Font.Gotham
     loadingLabel.ZIndex = 102
     loadingLabel.Parent = loadingContainer
+    
+    local authorLabel = Instance.new("TextLabel")
+    authorLabel.Size = UDim2.new(1, 0, 0, 18)
+    authorLabel.Position = UDim2.new(0, 0, 1, -25)
+    authorLabel.BackgroundTransparency = 1
+    authorLabel.Text = "by wersedev"
+    authorLabel.TextColor3 = Theme.TextDim
+    authorLabel.TextSize = 11
+    authorLabel.Font = Enum.Font.Gotham
+    authorLabel.ZIndex = 102
+    authorLabel.Parent = loadingContainer
     
     -- Animate loading text
     task.spawn(function()
@@ -237,11 +248,11 @@ function UILibrary.new(title)
     Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.3)
     
     -- Remove loading screen after UI loads
-    task.wait(0.5)
-    Tween(loadingFrame, {BackgroundTransparency = 1}, 0.3)
+    task.wait(4)
     Tween(loadingContainer, {BackgroundTransparency = 1}, 0.3)
     Tween(brandLabel, {TextTransparency = 1}, 0.3)
     Tween(loadingLabel, {TextTransparency = 1}, 0.3)
+    Tween(authorLabel, {TextTransparency = 1}, 0.3)
     task.wait(0.3)
     loadingFrame:Destroy()
 
