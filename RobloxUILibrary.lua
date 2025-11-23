@@ -1,16 +1,12 @@
--- Modern Roblox UI Library v2.0
--- Enhanced with Tabs and Menu Toggle
+-- Modern Roblox UI Library v2.1 - Optimized
 -- Created by: wersedev0
 
 local UILibrary = {}
 UILibrary.__index = UILibrary
 
--- Services
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 
--- Theme Configuration
 local Theme = {
     Background = Color3.fromRGB(25, 25, 35),
     Secondary = Color3.fromRGB(35, 35, 50),
@@ -24,14 +20,12 @@ local Theme = {
     Border = Color3.fromRGB(50, 50, 70),
 }
 
--- Utility Functions
 local function CreateTween(object, properties, duration, easingStyle, easingDirection)
-    local tweenInfo = TweenInfo.new(
+    local tween = TweenService:Create(object, TweenInfo.new(
         duration or 0.3,
         easingStyle or Enum.EasingStyle.Quad,
         easingDirection or Enum.EasingDirection.Out
-    )
-    local tween = TweenService:Create(object, tweenInfo, properties)
+    ), properties)
     tween:Play()
     return tween
 end
@@ -52,7 +46,6 @@ local function CreateStroke(parent, color, thickness)
     return stroke
 end
 
--- Main Library Constructor
 function UILibrary.new(title)
     local self = setmetatable({}, UILibrary)
     
@@ -60,14 +53,12 @@ function UILibrary.new(title)
     self.CurrentTab = nil
     self.IsVisible = true
     
-    -- Create ScreenGui
     self.ScreenGui = Instance.new("ScreenGui")
     self.ScreenGui.Name = "ModernUILibrary"
     self.ScreenGui.ResetOnSpawn = false
     self.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     self.ScreenGui.Parent = game:GetService("CoreGui")
     
-    -- Toggle Button (Always visible)
     self.ToggleButton = Instance.new("TextButton")
     self.ToggleButton.Name = "ToggleButton"
     self.ToggleButton.Size = UDim2.new(0, 50, 0, 50)
@@ -83,18 +74,14 @@ function UILibrary.new(title)
     CreateCorner(self.ToggleButton, 25)
     CreateStroke(self.ToggleButton, Theme.Border, 2)
     
-    -- Toggle Button Hover
     self.ToggleButton.MouseEnter:Connect(function()
-        CreateTween(self.ToggleButton, {BackgroundColor3 = Theme.AccentHover}, 0.2)
-        CreateTween(self.ToggleButton, {Size = UDim2.new(0, 55, 0, 55)}, 0.2, Enum.EasingStyle.Back)
+        CreateTween(self.ToggleButton, {BackgroundColor3 = Theme.AccentHover, Size = UDim2.new(0, 55, 0, 55)}, 0.2, Enum.EasingStyle.Back)
     end)
     
     self.ToggleButton.MouseLeave:Connect(function()
-        CreateTween(self.ToggleButton, {BackgroundColor3 = Theme.Accent}, 0.2)
-        CreateTween(self.ToggleButton, {Size = UDim2.new(0, 50, 0, 50)}, 0.2)
+        CreateTween(self.ToggleButton, {BackgroundColor3 = Theme.Accent, Size = UDim2.new(0, 50, 0, 50)}, 0.2)
     end)
     
-    -- Main Frame
     self.MainFrame = Instance.new("Frame")
     self.MainFrame.Name = "MainFrame"
     self.MainFrame.Size = UDim2.new(0, 600, 0, 450)
@@ -108,10 +95,6 @@ function UILibrary.new(title)
     CreateCorner(self.MainFrame, 12)
     CreateStroke(self.MainFrame, Theme.Border, 2)
     
-    -- ClipDescendants to prevent visual artifacts
-    self.MainFrame.ClipDescendants = false
-    
-    -- Title Bar
     self.TitleBar = Instance.new("Frame")
     self.TitleBar.Name = "TitleBar"
     self.TitleBar.Size = UDim2.new(1, 0, 0, 50)
@@ -121,7 +104,6 @@ function UILibrary.new(title)
     
     CreateCorner(self.TitleBar, 12)
     
-    -- Title Text
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Name = "Title"
     titleLabel.Size = UDim2.new(1, -150, 1, 0)
@@ -134,7 +116,6 @@ function UILibrary.new(title)
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     titleLabel.Parent = self.TitleBar
     
-    -- Minimize Button
     local minimizeButton = Instance.new("TextButton")
     minimizeButton.Name = "MinimizeButton"
     minimizeButton.Size = UDim2.new(0, 40, 0, 40)
@@ -161,7 +142,6 @@ function UILibrary.new(title)
         CreateTween(minimizeButton, {BackgroundColor3 = Theme.Warning}, 0.2)
     end)
     
-    -- Close Button
     local closeButton = Instance.new("TextButton")
     closeButton.Name = "CloseButton"
     closeButton.Size = UDim2.new(0, 40, 0, 40)
@@ -179,7 +159,7 @@ function UILibrary.new(title)
     closeButton.MouseButton1Click:Connect(function()
         CreateTween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.3)
         CreateTween(self.ToggleButton, {Size = UDim2.new(0, 0, 0, 0)}, 0.3)
-        wait(0.3)
+        task.wait(0.3)
         self.ScreenGui:Destroy()
     end)
     
@@ -191,7 +171,6 @@ function UILibrary.new(title)
         CreateTween(closeButton, {BackgroundColor3 = Theme.Error}, 0.2)
     end)
     
-    -- Tab Container
     self.TabContainer = Instance.new("Frame")
     self.TabContainer.Name = "TabContainer"
     self.TabContainer.Size = UDim2.new(0, 150, 1, -60)
@@ -202,7 +181,6 @@ function UILibrary.new(title)
     
     CreateCorner(self.TabContainer, 10)
     
-    -- Tab List Layout
     local tabLayout = Instance.new("UIListLayout")
     tabLayout.Padding = UDim.new(0, 5)
     tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -215,7 +193,6 @@ function UILibrary.new(title)
     tabPadding.PaddingRight = UDim.new(0, 10)
     tabPadding.Parent = self.TabContainer
     
-    -- Content Container
     self.ContentContainer = Instance.new("Frame")
     self.ContentContainer.Name = "ContentContainer"
     self.ContentContainer.Size = UDim2.new(1, -180, 1, -70)
@@ -224,19 +201,16 @@ function UILibrary.new(title)
     self.ContentContainer.BorderSizePixel = 0
     self.ContentContainer.Parent = self.MainFrame
     
-    -- Toggle Button Click
     self.ToggleButton.MouseButton1Click:Connect(function()
         self:Toggle()
     end)
     
-    -- LeftShift Keybind
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.LeftShift then
             self:Toggle()
         end
     end)
     
-    -- Entrance Animation
     self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
     self.ToggleButton.Size = UDim2.new(0, 0, 0, 0)
     CreateTween(self.MainFrame, {Size = UDim2.new(0, 600, 0, 450)}, 0.5, Enum.EasingStyle.Back)
@@ -245,7 +219,6 @@ function UILibrary.new(title)
     return self
 end
 
--- Toggle Menu Visibility
 function UILibrary:Toggle()
     self.IsVisible = not self.IsVisible
     
@@ -261,11 +234,9 @@ function UILibrary:Toggle()
     end
 end
 
--- Create Tab
 function UILibrary:CreateTab(name, icon)
     local tab = {}
     
-    -- Tab Button
     local tabButton = Instance.new("TextButton")
     tabButton.Name = name
     tabButton.Size = UDim2.new(1, 0, 0, 40)
@@ -286,7 +257,6 @@ function UILibrary:CreateTab(name, icon)
     tabPadding.PaddingLeft = UDim.new(0, 15)
     tabPadding.Parent = tabButton
     
-    -- Tab Content
     local tabContent = Instance.new("ScrollingFrame")
     tabContent.Name = name .. "Content"
     tabContent.Size = UDim2.new(1, 0, 1, 0)
@@ -298,7 +268,6 @@ function UILibrary:CreateTab(name, icon)
     tabContent.Visible = false
     tabContent.Parent = self.ContentContainer
     
-    -- Content Layout
     local contentLayout = Instance.new("UIListLayout")
     contentLayout.Padding = UDim.new(0, 10)
     contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -308,16 +277,13 @@ function UILibrary:CreateTab(name, icon)
         tabContent.CanvasSize = UDim2.new(0, 0, 0, contentLayout.AbsoluteContentSize.Y + 10)
     end)
     
-    -- Tab Selection
     tabButton.MouseButton1Click:Connect(function()
-        -- Deselect all tabs
         for _, t in pairs(self.Tabs) do
             t.Button.BackgroundTransparency = 1
             t.Button.TextColor3 = Theme.TextDim
             t.Content.Visible = false
         end
         
-        -- Select this tab
         tabButton.BackgroundTransparency = 0
         tabButton.BackgroundColor3 = Theme.Accent
         tabButton.TextColor3 = Theme.Text
@@ -346,7 +312,6 @@ function UILibrary:CreateTab(name, icon)
     
     table.insert(self.Tabs, tab)
     
-    -- Auto-select first tab
     if #self.Tabs == 1 then
         tabButton.BackgroundTransparency = 0
         tabButton.BackgroundColor3 = Theme.Accent
@@ -358,7 +323,6 @@ function UILibrary:CreateTab(name, icon)
     return setmetatable(tab, {__index = self})
 end
 
--- Create Button (for tabs)
 function UILibrary:CreateButton(text, callback)
     local container = self.Content or self.Container
     
@@ -376,7 +340,6 @@ function UILibrary:CreateButton(text, callback)
     
     CreateCorner(button, 8)
     
-    -- Ripple Effect
     button.MouseButton1Click:Connect(function()
         if callback then
             callback()
@@ -393,9 +356,7 @@ function UILibrary:CreateButton(text, callback)
         ripple.Parent = button
         
         CreateCorner(ripple, 999)
-        
         CreateTween(ripple, {Size = UDim2.new(2, 0, 2, 0), BackgroundTransparency = 1}, 0.5)
-        
         game:GetService("Debris"):AddItem(ripple, 0.5)
     end)
     
@@ -410,7 +371,6 @@ function UILibrary:CreateButton(text, callback)
     return button
 end
 
--- Create Toggle
 function UILibrary:CreateToggle(text, default, callback)
     local container = self.Content or self.Container
     
@@ -458,13 +418,8 @@ function UILibrary:CreateToggle(text, default, callback)
     toggleButton.MouseButton1Click:Connect(function()
         toggled = not toggled
         
-        CreateTween(toggleButton, {
-            BackgroundColor3 = toggled and Theme.Success or Theme.Border
-        }, 0.3)
-        
-        CreateTween(indicator, {
-            Position = toggled and UDim2.new(1, -21, 0.5, -9) or UDim2.new(0, 3, 0.5, -9)
-        }, 0.3, Enum.EasingStyle.Back)
+        CreateTween(toggleButton, {BackgroundColor3 = toggled and Theme.Success or Theme.Border}, 0.3)
+        CreateTween(indicator, {Position = toggled and UDim2.new(1, -21, 0.5, -9) or UDim2.new(0, 3, 0.5, -9)}, 0.3, Enum.EasingStyle.Back)
         
         if callback then
             callback(toggled)
@@ -474,7 +429,6 @@ function UILibrary:CreateToggle(text, default, callback)
     return toggleFrame
 end
 
--- Create Slider
 function UILibrary:CreateSlider(text, min, max, default, callback)
     local container = self.Content or self.Container
     
@@ -575,7 +529,6 @@ function UILibrary:CreateSlider(text, min, max, default, callback)
         end
     end)
     
-    -- Set initial value
     local initialPos = (currentValue - min) / (max - min)
     sliderFill.Size = UDim2.new(initialPos, 0, 1, 0)
     sliderButton.Position = UDim2.new(initialPos, 0, 0.5, 0)
@@ -583,7 +536,6 @@ function UILibrary:CreateSlider(text, min, max, default, callback)
     return sliderFrame
 end
 
--- Create Label
 function UILibrary:CreateLabel(text)
     local container = self.Content or self.Container
     
@@ -601,7 +553,6 @@ function UILibrary:CreateLabel(text)
     return label
 end
 
--- Create Divider
 function UILibrary:CreateDivider()
     local container = self.Content or self.Container
     
@@ -617,7 +568,6 @@ function UILibrary:CreateDivider()
     return divider
 end
 
--- Create Notification
 function UILibrary:CreateNotification(title, message, duration, notifType)
     local notifFrame = Instance.new("Frame")
     notifFrame.Name = "Notification"
@@ -653,10 +603,8 @@ function UILibrary:CreateNotification(title, message, duration, notifType)
     messageLabel.TextWrapped = true
     messageLabel.Parent = notifFrame
     
-    -- Slide in
     CreateTween(notifFrame, {Position = UDim2.new(1, -320, 1, -100)}, 0.5, Enum.EasingStyle.Back)
     
-    -- Auto dismiss
     task.spawn(function()
         task.wait(duration or 3)
         CreateTween(notifFrame, {Position = UDim2.new(1, 320, 1, -100)}, 0.3)
