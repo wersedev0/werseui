@@ -1,13 +1,13 @@
 local UILibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/wersedev0/werseui/refs/heads/main/RobloxUILibrary.lua"))()
 
-local Window = UILibrary.new("Script Hub")
+local Window = UILibrary.new("My Script Hub")
 
 local MainTab = Window:CreateTab("Main")
 local PlayerTab = Window:CreateTab("Player")
 local VisualTab = Window:CreateTab("Visual")
 local SettingsTab = Window:CreateTab("Settings")
 
-MainTab:CreateLabel("Welcome to Script Hub")
+MainTab:CreateLabel("Welcome to My Script Hub")
 MainTab:CreateDivider()
 
 MainTab:CreateButton("Test Notification", function()
@@ -117,9 +117,26 @@ end)
 
 SettingsTab:CreateLabel("UI Settings")
 
+SettingsTab:CreateButton("Change Title", function()
+    Window:SetTitle("Custom Title")
+    Window:Notify("Title", "UI title changed", 2)
+end)
+
+SettingsTab:CreateDivider()
+
 SettingsTab:CreateKeybind("Toggle UI Key", Enum.KeyCode.RightShift, function(key)
     Window:SetKey(key)
     Window:Notify("Keybind", "UI toggle key set to " .. key.Name, 2)
+end)
+
+SettingsTab:CreateDivider()
+
+SettingsTab:CreateColorPicker("Ambient Color", Color3.fromRGB(255, 255, 255), function(color)
+    game.Lighting.Ambient = color
+end)
+
+SettingsTab:CreateColorPicker("Fog Color", Color3.fromRGB(128, 128, 128), function(color)
+    game.Lighting.FogColor = color
 end)
 
 SettingsTab:CreateDivider()
