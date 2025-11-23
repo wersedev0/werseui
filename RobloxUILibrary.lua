@@ -44,12 +44,24 @@ function UILibrary.new(title)
     self.CurrentTab = nil
     self.IsVisible = true
     self.ToggleKey = Enum.KeyCode.RightShift
+    self.ColorPickerOpen = false
     
     self.ScreenGui = Instance.new("ScreenGui")
     self.ScreenGui.Name = "MinimalUI"
     self.ScreenGui.ResetOnSpawn = false
     self.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     self.ScreenGui.Parent = game:GetService("CoreGui")
+    
+    -- Overlay for when menu is open
+    self.Overlay = Instance.new("Frame")
+    self.Overlay.Name = "Overlay"
+    self.Overlay.Size = UDim2.new(1, 0, 1, 0)
+    self.Overlay.Position = UDim2.new(0, 0, 0, 0)
+    self.Overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    self.Overlay.BackgroundTransparency = 1
+    self.Overlay.BorderSizePixel = 0
+    self.Overlay.ZIndex = 1
+    self.Overlay.Parent = self.ScreenGui
     
     self.MainFrame = Instance.new("Frame")
     self.MainFrame.Name = "MainFrame"
@@ -58,7 +70,8 @@ function UILibrary.new(title)
     self.MainFrame.BackgroundColor3 = Theme.Background
     self.MainFrame.BorderSizePixel = 0
     self.MainFrame.Active = true
-    self.MainFrame.Draggable = true
+    self.MainFrame.Draggable = false
+    self.MainFrame.ZIndex = 2
     self.MainFrame.Parent = self.ScreenGui
     
     Corner(self.MainFrame, 6)
@@ -68,9 +81,40 @@ function UILibrary.new(title)
     self.TitleBar.Size = UDim2.new(1, 0, 0, 35)
     self.TitleBar.BackgroundColor3 = Theme.Secondary
     self.TitleBar.BorderSizePixel = 0
+    self.TitleBar.Active = true
+    self.TitleBar.ZIndex = 3
     self.TitleBar.Parent = self.MainFrame
     
     Corner(self.TitleBar, 6)
+    
+    -- Make title bar draggable
+    local dragging = false
+    local dragStart = nil
+    local startPos = nil
+    
+    self.TitleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = self.MainFrame.Position
+        end
+    end)
+    
+    self.TitleBar.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            self.MainFrame.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
     
     self.TitleLabel = Instance.new("TextLabel")
     self.TitleLabel.Size = UDim2.new(1, -80, 1, 0)
@@ -81,6 +125,7 @@ function UILibrary.new(title)
     self.TitleLabel.TextSize = 13
     self.TitleLabel.Font = Enum.Font.Gotham
     self.TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    self.TitleLabel.ZIndex = 4
     self.TitleLabel.Parent = self.TitleBar
     
     local closeBtn = Instance.new("TextButton")
@@ -92,13 +137,24 @@ function UILibrary.new(title)
     closeBtn.TextSize = 16
     closeBtn.Font = Enum.Font.GothamBold
     closeBtn.BorderSizePixel = 0
+    closeBtn.ZIndex = 4
     closeBtn.Parent = self.TitleBar
     
     Corner(closeBtn, 4)
     
     closeBtn.MouseButton1Click:Connect(function()
-        Tween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.2)
-        task.wait(0.2)
+        -- Slow fade out animation
+        Tween(self.MainFrame, {BackgroundTransparency = 1}, 0.4)
+        Tween(self.Overlay, {BackgroundTransparency = 1}, 0.4)
+        for _, child in pairs(self.MainFrame:GetDescendants()) do
+            if child:IsA("TextLabel") or child:IsA("TextButton") then
+                Tween(child, {TextTransparency = 1}, 0.4)
+            end
+            if child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ScrollingFrame") then
+                Tween(child, {BackgroundTransparency = 1}, 0.4)
+            end
+        end
+        task.wait(0.4)
         self.ScreenGui:Destroy()
     end)
     
@@ -115,6 +171,7 @@ function UILibrary.new(title)
     self.TabContainer.Position = UDim2.new(0, 8, 0, 43)
     self.TabContainer.BackgroundColor3 = Theme.Secondary
     self.TabContainer.BorderSizePixel = 0
+    self.TabContainer.ZIndex = 3
     self.TabContainer.Parent = self.MainFrame
     
     Corner(self.TabContainer, 4)
@@ -135,6 +192,7 @@ function UILibrary.new(title)
     self.ContentContainer.Position = UDim2.new(0, 136, 0, 43)
     self.ContentContainer.BackgroundTransparency = 1
     self.ContentContainer.BorderSizePixel = 0
+    self.ContentContainer.ZIndex = 3
     self.ContentContainer.Parent = self.MainFrame
     
     UserInputService.InputBegan:Connect(function(input, gp)
@@ -143,8 +201,34 @@ function UILibrary.new(title)
         end
     end)
     
-    self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
-    Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.3)
+    -- Slow fade in animation
+    self.MainFrame.BackgroundTransparency = 1
+    self.Overlay.BackgroundTransparency = 1
+    for _, child in pairs(self.MainFrame:GetDescendants()) do
+        if child:IsA("TextLabel") or child:IsA("TextButton") then
+            child.TextTransparency = 1
+        end
+        if child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ScrollingFrame") then
+            if child.BackgroundTransparency ~= 1 then
+                child.BackgroundTransparency = 1
+            end
+        end
+    end
+    
+    Tween(self.Overlay, {BackgroundTransparency = 0.5}, 0.4)
+    Tween(self.MainFrame, {BackgroundTransparency = 0}, 0.4)
+    for _, child in pairs(self.MainFrame:GetDescendants()) do
+        if child:IsA("TextLabel") or child:IsA("TextButton") then
+            Tween(child, {TextTransparency = 0}, 0.4)
+        end
+        if child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ScrollingFrame") then
+            local targetTrans = 0
+            if child.Name == "ContentContainer" or child.Parent.Name == "ContentContainer" then
+                targetTrans = 1
+            end
+            Tween(child, {BackgroundTransparency = targetTrans}, 0.4)
+        end
+    end
     
     return self
 end
@@ -154,11 +238,37 @@ function UILibrary:Toggle()
     
     if self.IsVisible then
         self.MainFrame.Visible = true
-        Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.25)
+        self.Overlay.Visible = true
+        -- Slow fade in
+        Tween(self.Overlay, {BackgroundTransparency = 0.5}, 0.4)
+        Tween(self.MainFrame, {BackgroundTransparency = 0}, 0.4)
+        for _, child in pairs(self.MainFrame:GetDescendants()) do
+            if child:IsA("TextLabel") or child:IsA("TextButton") then
+                Tween(child, {TextTransparency = 0}, 0.4)
+            end
+            if child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ScrollingFrame") then
+                local targetTrans = 0
+                if child.Name == "ContentContainer" or child.Parent.Name == "ContentContainer" then
+                    targetTrans = 1
+                end
+                Tween(child, {BackgroundTransparency = targetTrans}, 0.4)
+            end
+        end
     else
-        Tween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.2)
-        task.wait(0.2)
+        -- Slow fade out
+        Tween(self.MainFrame, {BackgroundTransparency = 1}, 0.4)
+        Tween(self.Overlay, {BackgroundTransparency = 1}, 0.4)
+        for _, child in pairs(self.MainFrame:GetDescendants()) do
+            if child:IsA("TextLabel") or child:IsA("TextButton") then
+                Tween(child, {TextTransparency = 1}, 0.4)
+            end
+            if child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ScrollingFrame") then
+                Tween(child, {BackgroundTransparency = 1}, 0.4)
+            end
+        end
+        task.wait(0.4)
         self.MainFrame.Visible = false
+        self.Overlay.Visible = false
     end
 end
 
@@ -183,6 +293,7 @@ function UILibrary:CreateTab(name)
     tabBtn.Font = Enum.Font.Gotham
     tabBtn.BorderSizePixel = 0
     tabBtn.AutoButtonColor = false
+    tabBtn.ZIndex = 4
     tabBtn.Parent = self.TabContainer
     
     Corner(tabBtn, 4)
@@ -195,6 +306,7 @@ function UILibrary:CreateTab(name)
     tabContent.ScrollBarImageColor3 = Theme.Border
     tabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
     tabContent.Visible = false
+    tabContent.ZIndex = 4
     tabContent.Parent = self.ContentContainer
     
     local layout = Instance.new("UIListLayout")
@@ -423,6 +535,22 @@ function UILibrary:CreateSlider(text, min, max, default, callback)
     return frame
 end
 
+function UILibrary:CreateSection(text)
+    local container = self.Content or self.Container
+    
+    local section = Instance.new("TextLabel")
+    section.Size = UDim2.new(1, -12, 0, 30)
+    section.BackgroundTransparency = 1
+    section.Text = text
+    section.TextColor3 = Theme.Text
+    section.TextSize = 14
+    section.Font = Enum.Font.GothamBold
+    section.TextXAlignment = Enum.TextXAlignment.Left
+    section.Parent = container
+    
+    return section
+end
+
 function UILibrary:CreateLabel(text)
     local container = self.Content or self.Container
     
@@ -530,15 +658,30 @@ function UILibrary:CreateColorPicker(text, default, callback)
     Stroke(colorBtn, Theme.Border, 1)
     
     local currentColor = default or Color3.fromRGB(255, 255, 255)
+    local currentPopup = nil
     
     colorBtn.MouseButton1Click:Connect(function()
+        if self.ColorPickerOpen then return end
+        self.ColorPickerOpen = true
+        
+        -- Block menu interactions
+        local blocker = Instance.new("Frame")
+        blocker.Size = UDim2.new(1, 0, 1, 0)
+        blocker.Position = UDim2.new(0, 0, 0, 0)
+        blocker.BackgroundTransparency = 1
+        blocker.BorderSizePixel = 0
+        blocker.ZIndex = 49
+        blocker.Parent = self.MainFrame
+        
         local popup = Instance.new("Frame")
         popup.Size = UDim2.new(0, 250, 0, 180)
+        -- Center in menu instead of screen
         popup.Position = UDim2.new(0.5, -125, 0.5, -90)
         popup.BackgroundColor3 = Theme.Background
         popup.BorderSizePixel = 0
-        popup.ZIndex = 100
-        popup.Parent = self.ScreenGui
+        popup.ZIndex = 50
+        popup.Parent = self.MainFrame
+        currentPopup = popup
         
         Corner(popup, 6)
         Stroke(popup, Theme.Border, 2)
@@ -552,7 +695,7 @@ function UILibrary:CreateColorPicker(text, default, callback)
         popupTitle.TextSize = 13
         popupTitle.Font = Enum.Font.GothamBold
         popupTitle.TextXAlignment = Enum.TextXAlignment.Left
-        popupTitle.ZIndex = 101
+        popupTitle.ZIndex = 51
         popupTitle.Parent = popup
         
         local closePopup = Instance.new("TextButton")
@@ -564,12 +707,15 @@ function UILibrary:CreateColorPicker(text, default, callback)
         closePopup.TextSize = 14
         closePopup.Font = Enum.Font.GothamBold
         closePopup.BorderSizePixel = 0
-        closePopup.ZIndex = 101
+        closePopup.ZIndex = 51
         closePopup.Parent = popup
         
         Corner(closePopup, 4)
         
         closePopup.MouseButton1Click:Connect(function()
+            self.ColorPickerOpen = false
+            currentPopup = nil
+            blocker:Destroy()
             popup:Destroy()
         end)
         
@@ -578,7 +724,7 @@ function UILibrary:CreateColorPicker(text, default, callback)
         preview.Position = UDim2.new(0, 10, 0, 40)
         preview.BackgroundColor3 = currentColor
         preview.BorderSizePixel = 0
-        preview.ZIndex = 101
+        preview.ZIndex = 51
         preview.Parent = popup
         
         Corner(preview, 4)
@@ -604,7 +750,7 @@ function UILibrary:CreateColorPicker(text, default, callback)
             sliderLabel.TextColor3 = Theme.TextDim
             sliderLabel.TextSize = 11
             sliderLabel.Font = Enum.Font.GothamBold
-            sliderLabel.ZIndex = 101
+            sliderLabel.ZIndex = 51
             sliderLabel.Parent = popup
             
             local valueLabel = Instance.new("TextLabel")
@@ -616,7 +762,7 @@ function UILibrary:CreateColorPicker(text, default, callback)
             valueLabel.TextSize = 10
             valueLabel.Font = Enum.Font.Gotham
             valueLabel.TextXAlignment = Enum.TextXAlignment.Right
-            valueLabel.ZIndex = 101
+            valueLabel.ZIndex = 51
             valueLabel.Parent = popup
             
             local sliderBack = Instance.new("Frame")
@@ -624,7 +770,7 @@ function UILibrary:CreateColorPicker(text, default, callback)
             sliderBack.Position = UDim2.new(0, 30, 0, yPos + 6)
             sliderBack.BackgroundColor3 = Theme.Tertiary
             sliderBack.BorderSizePixel = 0
-            sliderBack.ZIndex = 101
+            sliderBack.ZIndex = 51
             sliderBack.Parent = popup
             
             Corner(sliderBack, 2)
@@ -633,7 +779,7 @@ function UILibrary:CreateColorPicker(text, default, callback)
             sliderFill.Size = UDim2.new(defaultVal / 255, 0, 1, 0)
             sliderFill.BackgroundColor3 = Theme.Accent
             sliderFill.BorderSizePixel = 0
-            sliderFill.ZIndex = 101
+            sliderFill.ZIndex = 51
             sliderFill.Parent = sliderBack
             
             Corner(sliderFill, 2)
@@ -645,7 +791,7 @@ function UILibrary:CreateColorPicker(text, default, callback)
             sliderBtn.BackgroundColor3 = Theme.Accent
             sliderBtn.Text = ""
             sliderBtn.BorderSizePixel = 0
-            sliderBtn.ZIndex = 102
+            sliderBtn.ZIndex = 52
             sliderBtn.Parent = sliderBack
             
             Corner(sliderBtn, 5)
