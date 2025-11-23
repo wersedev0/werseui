@@ -52,16 +52,7 @@ function UILibrary.new(title)
     self.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     self.ScreenGui.Parent = game:GetService("CoreGui")
     
-    -- Overlay for when menu is open
-    self.Overlay = Instance.new("Frame")
-    self.Overlay.Name = "Overlay"
-    self.Overlay.Size = UDim2.new(1, 0, 1, 0)
-    self.Overlay.Position = UDim2.new(0, 0, 0, 0)
-    self.Overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    self.Overlay.BackgroundTransparency = 1
-    self.Overlay.BorderSizePixel = 0
-    self.Overlay.ZIndex = 1
-    self.Overlay.Parent = self.ScreenGui
+
     
     self.MainFrame = Instance.new("Frame")
     self.MainFrame.Name = "MainFrame"
@@ -143,18 +134,8 @@ function UILibrary.new(title)
     Corner(closeBtn, 4)
     
     closeBtn.MouseButton1Click:Connect(function()
-        -- Slow fade out animation
-        Tween(self.MainFrame, {BackgroundTransparency = 1}, 0.4)
-        Tween(self.Overlay, {BackgroundTransparency = 1}, 0.4)
-        for _, child in pairs(self.MainFrame:GetDescendants()) do
-            if child:IsA("TextLabel") or child:IsA("TextButton") then
-                Tween(child, {TextTransparency = 1}, 0.4)
-            end
-            if child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ScrollingFrame") then
-                Tween(child, {BackgroundTransparency = 1}, 0.4)
-            end
-        end
-        task.wait(0.4)
+        Tween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.2)
+        task.wait(0.2)
         self.ScreenGui:Destroy()
     end)
     
@@ -201,34 +182,8 @@ function UILibrary.new(title)
         end
     end)
     
-    -- Slow fade in animation
-    self.MainFrame.BackgroundTransparency = 1
-    self.Overlay.BackgroundTransparency = 1
-    for _, child in pairs(self.MainFrame:GetDescendants()) do
-        if child:IsA("TextLabel") or child:IsA("TextButton") then
-            child.TextTransparency = 1
-        end
-        if child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ScrollingFrame") then
-            if child.BackgroundTransparency ~= 1 then
-                child.BackgroundTransparency = 1
-            end
-        end
-    end
-    
-    Tween(self.Overlay, {BackgroundTransparency = 0.5}, 0.4)
-    Tween(self.MainFrame, {BackgroundTransparency = 0}, 0.4)
-    for _, child in pairs(self.MainFrame:GetDescendants()) do
-        if child:IsA("TextLabel") or child:IsA("TextButton") then
-            Tween(child, {TextTransparency = 0}, 0.4)
-        end
-        if child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ScrollingFrame") then
-            local targetTrans = 0
-            if child.Name == "ContentContainer" or child.Parent.Name == "ContentContainer" then
-                targetTrans = 1
-            end
-            Tween(child, {BackgroundTransparency = targetTrans}, 0.4)
-        end
-    end
+    self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
+    Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.3)
     
     return self
 end
@@ -238,37 +193,11 @@ function UILibrary:Toggle()
     
     if self.IsVisible then
         self.MainFrame.Visible = true
-        self.Overlay.Visible = true
-        -- Slow fade in
-        Tween(self.Overlay, {BackgroundTransparency = 0.5}, 0.4)
-        Tween(self.MainFrame, {BackgroundTransparency = 0}, 0.4)
-        for _, child in pairs(self.MainFrame:GetDescendants()) do
-            if child:IsA("TextLabel") or child:IsA("TextButton") then
-                Tween(child, {TextTransparency = 0}, 0.4)
-            end
-            if child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ScrollingFrame") then
-                local targetTrans = 0
-                if child.Name == "ContentContainer" or child.Parent.Name == "ContentContainer" then
-                    targetTrans = 1
-                end
-                Tween(child, {BackgroundTransparency = targetTrans}, 0.4)
-            end
-        end
+        Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.25)
     else
-        -- Slow fade out
-        Tween(self.MainFrame, {BackgroundTransparency = 1}, 0.4)
-        Tween(self.Overlay, {BackgroundTransparency = 1}, 0.4)
-        for _, child in pairs(self.MainFrame:GetDescendants()) do
-            if child:IsA("TextLabel") or child:IsA("TextButton") then
-                Tween(child, {TextTransparency = 1}, 0.4)
-            end
-            if child:IsA("Frame") or child:IsA("TextButton") or child:IsA("ScrollingFrame") then
-                Tween(child, {BackgroundTransparency = 1}, 0.4)
-            end
-        end
-        task.wait(0.4)
+        Tween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.2)
+        task.wait(0.2)
         self.MainFrame.Visible = false
-        self.Overlay.Visible = false
     end
 end
 
