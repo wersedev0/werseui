@@ -246,18 +246,20 @@ function UILibrary.new(title)
         end
     end)
     
-    -- Remove loading screen after UI loads
-    task.wait(4)
-    self.MainFrame.Visible = true
-    self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
-    Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.3)
-    Tween(loadingFrame, {BackgroundTransparency = 1}, 0.3)
-    Tween(loadingContainer, {BackgroundTransparency = 1}, 0.3)
-    Tween(brandLabel, {TextTransparency = 1}, 0.3)
-    Tween(loadingLabel, {TextTransparency = 1}, 0.3)
-    Tween(authorLabel, {TextTransparency = 1}, 0.3)
-    task.wait(0.3)
-    loadingFrame:Destroy()
+    -- Remove loading screen after UI loads (async)
+    task.spawn(function()
+        task.wait(4)
+        self.MainFrame.Visible = true
+        self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
+        Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.3)
+        Tween(loadingFrame, {BackgroundTransparency = 1}, 0.3)
+        Tween(loadingContainer, {BackgroundTransparency = 1}, 0.3)
+        Tween(brandLabel, {TextTransparency = 1}, 0.3)
+        Tween(loadingLabel, {TextTransparency = 1}, 0.3)
+        Tween(authorLabel, {TextTransparency = 1}, 0.3)
+        task.wait(0.3)
+        loadingFrame:Destroy()
+    end)
 
     
     return self
