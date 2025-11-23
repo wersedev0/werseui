@@ -1,39 +1,38 @@
 local UILibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/wersedev0/werseui/refs/heads/main/RobloxUILibrary.lua"))()
 
-local Window = UILibrary.new("Game Menu")
+local Window = UILibrary.new("Script Hub")
 
-local MainTab = Window:CreateTab("Ana Sayfa", "🏠")
-local PlayerTab = Window:CreateTab("Oyuncu", "👤")
-local VisualTab = Window:CreateTab("Görsel", "👁️")
-local MiscTab = Window:CreateTab("Diğer", "⚙️")
+local MainTab = Window:CreateTab("Main")
+local PlayerTab = Window:CreateTab("Player")
+local VisualTab = Window:CreateTab("Visual")
+local SettingsTab = Window:CreateTab("Settings")
 
-MainTab:CreateLabel("Hoş Geldiniz!")
-MainTab:CreateLabel("Bu gelişmiş UI kütüphanesini kullanıyorsunuz")
+MainTab:CreateLabel("Welcome to Script Hub")
 MainTab:CreateDivider()
 
-MainTab:CreateButton("Test Bildirimi", function()
-    Window:CreateNotification("Test", "Bildirim sistemi çalışıyor!", 3, "success")
+MainTab:CreateButton("Test Notification", function()
+    Window:Notify("Success", "Notification system working!", 2)
 end)
 
-MainTab:CreateButton("Oyuncu Bilgileri", function()
+MainTab:CreateButton("Player Info", function()
     local player = game.Players.LocalPlayer
-    Window:CreateNotification("Oyuncu", "İsim: " .. player.Name, 3)
+    Window:Notify("Info", "Name: " .. player.Name, 2)
 end)
 
-MainTab:CreateToggle("Karanlık Mod", true, function(state)
-    print("Karanlık mod:", state)
+MainTab:CreateToggle("Dark Mode", true, function(state)
+    print("Dark mode:", state)
 end)
 
-PlayerTab:CreateLabel("Karakter Ayarları")
+PlayerTab:CreateLabel("Character Settings")
 
-PlayerTab:CreateSlider("Hız", 16, 200, 16, function(value)
+PlayerTab:CreateSlider("Walk Speed", 16, 200, 16, function(value)
     local character = game.Players.LocalPlayer.Character
     if character and character:FindFirstChild("Humanoid") then
         character.Humanoid.WalkSpeed = value
     end
 end)
 
-PlayerTab:CreateSlider("Zıplama Gücü", 50, 300, 50, function(value)
+PlayerTab:CreateSlider("Jump Power", 50, 300, 50, function(value)
     local character = game.Players.LocalPlayer.Character
     if character and character:FindFirstChild("Humanoid") then
         character.Humanoid.JumpPower = value
@@ -42,38 +41,38 @@ end)
 
 PlayerTab:CreateDivider()
 
-PlayerTab:CreateToggle("Süper Hız", false, function(state)
+PlayerTab:CreateToggle("Super Speed", false, function(state)
     local character = game.Players.LocalPlayer.Character
     if character and character:FindFirstChild("Humanoid") then
         if state then
             character.Humanoid.WalkSpeed = 100
-            Window:CreateNotification("Aktif", "Süper hız açıldı!", 2, "success")
+            Window:Notify("Enabled", "Super speed activated", 2)
         else
             character.Humanoid.WalkSpeed = 16
-            Window:CreateNotification("Kapalı", "Normal hız", 2, "error")
+            Window:Notify("Disabled", "Normal speed", 2)
         end
     end
 end)
 
-PlayerTab:CreateToggle("Uçma Modu", false, function(state)
+PlayerTab:CreateToggle("Fly Mode", false, function(state)
     if state then
-        Window:CreateNotification("Uçma", "Uçma modu aktif!", 2, "success")
+        Window:Notify("Fly", "Fly mode enabled", 2)
     else
-        Window:CreateNotification("Uçma", "Uçma modu kapalı", 2, "error")
+        Window:Notify("Fly", "Fly mode disabled", 2)
     end
 end)
 
 PlayerTab:CreateDivider()
 
-PlayerTab:CreateButton("Spawn'a Işınlan", function()
+PlayerTab:CreateButton("Teleport to Spawn", function()
     local character = game.Players.LocalPlayer.Character
     if character and character:FindFirstChild("HumanoidRootPart") then
         character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0)
-        Window:CreateNotification("Işınlandın!", "Spawn noktasına ışınlandın", 2, "success")
+        Window:Notify("Teleported", "Moved to spawn point", 2)
     end
 end)
 
-VisualTab:CreateLabel("Görsel Efektler")
+VisualTab:CreateLabel("Visual Effects")
 
 VisualTab:CreateSlider("FOV", 70, 120, 70, function(value)
     workspace.CurrentCamera.FieldOfView = value
@@ -84,27 +83,27 @@ VisualTab:CreateToggle("Fullbright", false, function(state)
         game.Lighting.Brightness = 2
         game.Lighting.ClockTime = 14
         game.Lighting.FogEnd = 100000
-        Window:CreateNotification("Görsel", "Fullbright açık", 2, "success")
+        Window:Notify("Visual", "Fullbright enabled", 2)
     else
         game.Lighting.Brightness = 1
         game.Lighting.ClockTime = 12
         game.Lighting.FogEnd = 10000
-        Window:CreateNotification("Görsel", "Fullbright kapalı", 2, "error")
+        Window:Notify("Visual", "Fullbright disabled", 2)
     end
 end)
 
-VisualTab:CreateToggle("ESP (Oyuncular)", false, function(state)
-    print("ESP durumu:", state)
+VisualTab:CreateToggle("ESP Players", false, function(state)
+    print("ESP state:", state)
     if state then
-        Window:CreateNotification("ESP", "ESP sistemi aktif", 2, "success")
+        Window:Notify("ESP", "ESP system active", 2)
     else
-        Window:CreateNotification("ESP", "ESP kapatıldı", 2, "error")
+        Window:Notify("ESP", "ESP disabled", 2)
     end
 end)
 
 VisualTab:CreateDivider()
 
-VisualTab:CreateButton("Renk Değiştir", function()
+VisualTab:CreateButton("Change Ambient", function()
     local colors = {
         Color3.fromRGB(255, 100, 100),
         Color3.fromRGB(100, 255, 100),
@@ -113,34 +112,41 @@ VisualTab:CreateButton("Renk Değiştir", function()
     }
     local randomColor = colors[math.random(1, #colors)]
     game.Lighting.Ambient = randomColor
-    Window:CreateNotification("Renk", "Ortam rengi değişti!", 2)
+    Window:Notify("Color", "Ambient color changed", 2)
 end)
 
-MiscTab:CreateLabel("Çeşitli Ayarlar")
+SettingsTab:CreateLabel("UI Settings")
 
-MiscTab:CreateToggle("Ses Efektleri", true, function(state)
-    print("Ses efektleri:", state)
+SettingsTab:CreateKeybind("Toggle UI Key", Enum.KeyCode.RightShift, function(key)
+    Window:SetKey(key)
+    Window:Notify("Keybind", "UI toggle key set to " .. key.Name, 2)
 end)
 
-MiscTab:CreateToggle("Sohbet Göster", true, function(state)
+SettingsTab:CreateDivider()
+
+SettingsTab:CreateToggle("Sound Effects", true, function(state)
+    print("Sound effects:", state)
+end)
+
+SettingsTab:CreateToggle("Show Chat", true, function(state)
     game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, state)
 end)
 
-MiscTab:CreateDivider()
+SettingsTab:CreateDivider()
 
-MiscTab:CreateButton("UI'ı Yenile", function()
-    Window:CreateNotification("Yenileniyor", "UI yeniden yükleniyor...", 2, "success")
-    wait(1)
+SettingsTab:CreateButton("Refresh UI", function()
+    Window:Notify("Refreshing", "UI reloading...", 2)
+    task.wait(1)
 end)
 
-MiscTab:CreateButton("Sunucu Bilgisi", function()
-    local serverInfo = "Oyuncular: " .. #game.Players:GetPlayers()
-    Window:CreateNotification("Sunucu", serverInfo, 3)
+SettingsTab:CreateButton("Server Info", function()
+    local serverInfo = "Players: " .. #game.Players:GetPlayers()
+    Window:Notify("Server", serverInfo, 2)
 end)
 
-MiscTab:CreateDivider()
-MiscTab:CreateLabel("━━━━━━━━━━━━━━━━━")
-MiscTab:CreateLabel("UI Kütüphanesi v2.0")
-MiscTab:CreateLabel("wersedev0")
+SettingsTab:CreateDivider()
+SettingsTab:CreateLabel("━━━━━━━━━━━━━━━━━")
+SettingsTab:CreateLabel("Minimal UI v3.0")
+SettingsTab:CreateLabel("wersedev0")
 
-Window:CreateNotification("Hoş Geldin!", "UI başarıyla yüklendi", 3, "success")
+Window:Notify("Welcome", "UI loaded successfully", 2)
