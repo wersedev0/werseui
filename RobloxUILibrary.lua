@@ -52,7 +52,58 @@ function UILibrary.new(title)
     self.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     self.ScreenGui.Parent = game:GetService("CoreGui")
     
-
+    -- Loading Screen
+    local loadingFrame = Instance.new("Frame")
+    loadingFrame.Name = "LoadingScreen"
+    loadingFrame.Size = UDim2.new(1, 0, 1, 0)
+    loadingFrame.Position = UDim2.new(0, 0, 0, 0)
+    loadingFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    loadingFrame.BorderSizePixel = 0
+    loadingFrame.ZIndex = 100
+    loadingFrame.Parent = self.ScreenGui
+    
+    local loadingContainer = Instance.new("Frame")
+    loadingContainer.Size = UDim2.new(0, 400, 0, 100)
+    loadingContainer.Position = UDim2.new(0.5, -200, 0.5, -50)
+    loadingContainer.BackgroundColor3 = Theme.Secondary
+    loadingContainer.BorderSizePixel = 0
+    loadingContainer.ZIndex = 101
+    loadingContainer.Parent = loadingFrame
+    
+    Corner(loadingContainer, 8)
+    Stroke(loadingContainer, Theme.Border, 1)
+    
+    local brandLabel = Instance.new("TextLabel")
+    brandLabel.Size = UDim2.new(1, 0, 0, 40)
+    brandLabel.Position = UDim2.new(0, 0, 0, 15)
+    brandLabel.BackgroundTransparency = 1
+    brandLabel.Text = "werseui"
+    brandLabel.TextColor3 = Theme.Text
+    brandLabel.TextSize = 28
+    brandLabel.Font = Enum.Font.GothamBold
+    brandLabel.ZIndex = 102
+    brandLabel.Parent = loadingContainer
+    
+    local loadingLabel = Instance.new("TextLabel")
+    loadingLabel.Size = UDim2.new(1, 0, 0, 20)
+    loadingLabel.Position = UDim2.new(0, 0, 0, 60)
+    loadingLabel.BackgroundTransparency = 1
+    loadingLabel.Text = "Loading..."
+    loadingLabel.TextColor3 = Theme.TextDim
+    loadingLabel.TextSize = 12
+    loadingLabel.Font = Enum.Font.Gotham
+    loadingLabel.ZIndex = 102
+    loadingLabel.Parent = loadingContainer
+    
+    -- Animate loading text
+    task.spawn(function()
+        local dots = 0
+        while loadingFrame.Parent do
+            dots = (dots + 1) % 4
+            loadingLabel.Text = "Loading" .. string.rep(".", dots)
+            task.wait(0.5)
+        end
+    end)
     
     self.MainFrame = Instance.new("Frame")
     self.MainFrame.Name = "MainFrame"
@@ -184,6 +235,16 @@ function UILibrary.new(title)
     
     self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
     Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.3)
+    
+    -- Remove loading screen after UI loads
+    task.wait(0.5)
+    Tween(loadingFrame, {BackgroundTransparency = 1}, 0.3)
+    Tween(loadingContainer, {BackgroundTransparency = 1}, 0.3)
+    Tween(brandLabel, {TextTransparency = 1}, 0.3)
+    Tween(loadingLabel, {TextTransparency = 1}, 0.3)
+    task.wait(0.3)
+    loadingFrame:Destroy()
+
     
     return self
 end
