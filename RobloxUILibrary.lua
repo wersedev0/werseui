@@ -499,7 +499,7 @@ function UILibrary:CreateColorPicker(text, default, callback)
     local container = self.Content or self.Container
     
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, -12, 0, 120)
+    frame.Size = UDim2.new(1, -12, 0, 32)
     frame.BackgroundColor3 = Theme.Secondary
     frame.BorderSizePixel = 0
     frame.Parent = container
@@ -508,8 +508,8 @@ function UILibrary:CreateColorPicker(text, default, callback)
     Stroke(frame, Theme.Border, 1)
     
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -50, 0, 18)
-    label.Position = UDim2.new(0, 10, 0, 6)
+    label.Size = UDim2.new(1, -80, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = text
     label.TextColor3 = Theme.Text
@@ -518,106 +518,173 @@ function UILibrary:CreateColorPicker(text, default, callback)
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.Parent = frame
     
-    local preview = Instance.new("Frame")
-    preview.Size = UDim2.new(0, 32, 0, 18)
-    preview.Position = UDim2.new(1, -38, 0, 6)
-    preview.BackgroundColor3 = default or Color3.fromRGB(255, 255, 255)
-    preview.BorderSizePixel = 0
-    preview.Parent = frame
+    local colorBtn = Instance.new("TextButton")
+    colorBtn.Size = UDim2.new(0, 65, 0, 24)
+    colorBtn.Position = UDim2.new(1, -71, 0, 4)
+    colorBtn.BackgroundColor3 = default or Color3.fromRGB(255, 255, 255)
+    colorBtn.Text = ""
+    colorBtn.BorderSizePixel = 0
+    colorBtn.Parent = frame
     
-    Corner(preview, 4)
-    Stroke(preview, Theme.Border, 1)
+    Corner(colorBtn, 4)
+    Stroke(colorBtn, Theme.Border, 1)
     
     local currentColor = default or Color3.fromRGB(255, 255, 255)
-    local r, g, b = math.floor(currentColor.R * 255), math.floor(currentColor.G * 255), math.floor(currentColor.B * 255)
     
-    local function updateColor()
-        currentColor = Color3.fromRGB(r, g, b)
+    colorBtn.MouseButton1Click:Connect(function()
+        local popup = Instance.new("Frame")
+        popup.Size = UDim2.new(0, 250, 0, 180)
+        popup.Position = UDim2.new(0.5, -125, 0.5, -90)
+        popup.BackgroundColor3 = Theme.Background
+        popup.BorderSizePixel = 0
+        popup.ZIndex = 100
+        popup.Parent = self.ScreenGui
+        
+        Corner(popup, 6)
+        Stroke(popup, Theme.Border, 2)
+        
+        local popupTitle = Instance.new("TextLabel")
+        popupTitle.Size = UDim2.new(1, -40, 0, 30)
+        popupTitle.Position = UDim2.new(0, 10, 0, 5)
+        popupTitle.BackgroundTransparency = 1
+        popupTitle.Text = "Select Color"
+        popupTitle.TextColor3 = Theme.Text
+        popupTitle.TextSize = 13
+        popupTitle.Font = Enum.Font.GothamBold
+        popupTitle.TextXAlignment = Enum.TextXAlignment.Left
+        popupTitle.ZIndex = 101
+        popupTitle.Parent = popup
+        
+        local closePopup = Instance.new("TextButton")
+        closePopup.Size = UDim2.new(0, 25, 0, 25)
+        closePopup.Position = UDim2.new(1, -30, 0, 5)
+        closePopup.BackgroundColor3 = Theme.Tertiary
+        closePopup.Text = "×"
+        closePopup.TextColor3 = Theme.Text
+        closePopup.TextSize = 14
+        closePopup.Font = Enum.Font.GothamBold
+        closePopup.BorderSizePixel = 0
+        closePopup.ZIndex = 101
+        closePopup.Parent = popup
+        
+        Corner(closePopup, 4)
+        
+        closePopup.MouseButton1Click:Connect(function()
+            popup:Destroy()
+        end)
+        
+        local preview = Instance.new("Frame")
+        preview.Size = UDim2.new(1, -20, 0, 35)
+        preview.Position = UDim2.new(0, 10, 0, 40)
         preview.BackgroundColor3 = currentColor
-        if callback then callback(currentColor) end
-    end
-    
-    local function createSlider(name, yPos, defaultVal, colorIndex)
-        local sliderLabel = Instance.new("TextLabel")
-        sliderLabel.Size = UDim2.new(0, 15, 0, 18)
-        sliderLabel.Position = UDim2.new(0, 10, 0, yPos)
-        sliderLabel.BackgroundTransparency = 1
-        sliderLabel.Text = name
-        sliderLabel.TextColor3 = Theme.TextDim
-        sliderLabel.TextSize = 11
-        sliderLabel.Font = Enum.Font.GothamBold
-        sliderLabel.Parent = frame
+        preview.BorderSizePixel = 0
+        preview.ZIndex = 101
+        preview.Parent = popup
         
-        local valueLabel = Instance.new("TextLabel")
-        valueLabel.Size = UDim2.new(0, 30, 0, 18)
-        valueLabel.Position = UDim2.new(1, -35, 0, yPos)
-        valueLabel.BackgroundTransparency = 1
-        valueLabel.Text = tostring(defaultVal)
-        valueLabel.TextColor3 = Theme.TextDim
-        valueLabel.TextSize = 10
-        valueLabel.Font = Enum.Font.Gotham
-        valueLabel.TextXAlignment = Enum.TextXAlignment.Right
-        valueLabel.Parent = frame
+        Corner(preview, 4)
+        Stroke(preview, Theme.Border, 1)
         
-        local sliderBack = Instance.new("Frame")
-        sliderBack.Size = UDim2.new(1, -90, 0, 4)
-        sliderBack.Position = UDim2.new(0, 30, 0, yPos + 7)
-        sliderBack.BackgroundColor3 = Theme.Tertiary
-        sliderBack.BorderSizePixel = 0
-        sliderBack.Parent = frame
+        local r = math.floor(currentColor.R * 255)
+        local g = math.floor(currentColor.G * 255)
+        local b = math.floor(currentColor.B * 255)
         
-        Corner(sliderBack, 2)
-        
-        local sliderFill = Instance.new("Frame")
-        sliderFill.Size = UDim2.new(defaultVal / 255, 0, 1, 0)
-        sliderFill.BackgroundColor3 = Theme.Accent
-        sliderFill.BorderSizePixel = 0
-        sliderFill.Parent = sliderBack
-        
-        Corner(sliderFill, 2)
-        
-        local sliderBtn = Instance.new("TextButton")
-        sliderBtn.Size = UDim2.new(0, 10, 0, 10)
-        sliderBtn.AnchorPoint = Vector2.new(0.5, 0.5)
-        sliderBtn.Position = UDim2.new(defaultVal / 255, 0, 0.5, 0)
-        sliderBtn.BackgroundColor3 = Theme.Accent
-        sliderBtn.Text = ""
-        sliderBtn.BorderSizePixel = 0
-        sliderBtn.Parent = sliderBack
-        
-        Corner(sliderBtn, 5)
-        
-        local dragging = false
-        
-        local function update(input)
-            local pos = math.clamp((input.Position.X - sliderBack.AbsolutePosition.X) / sliderBack.AbsoluteSize.X, 0, 1)
-            local value = math.floor(pos * 255)
-            
-            if colorIndex == 1 then r = value
-            elseif colorIndex == 2 then g = value
-            else b = value end
-            
-            sliderFill.Size = UDim2.new(pos, 0, 1, 0)
-            sliderBtn.Position = UDim2.new(pos, 0, 0.5, 0)
-            valueLabel.Text = tostring(value)
-            updateColor()
+        local function updateColor()
+            currentColor = Color3.fromRGB(r, g, b)
+            preview.BackgroundColor3 = currentColor
+            colorBtn.BackgroundColor3 = currentColor
+            if callback then callback(currentColor) end
         end
         
-        sliderBtn.MouseButton1Down:Connect(function() dragging = true end)
-        UserInputService.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-        end)
-        UserInputService.InputChanged:Connect(function(input)
-            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then update(input) end
-        end)
-        sliderBack.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then update(input) end
-        end)
-    end
-    
-    createSlider("R", 30, r, 1)
-    createSlider("G", 54, g, 2)
-    createSlider("B", 78, b, 3)
+        local function createSlider(name, yPos, defaultVal, colorIndex)
+            local sliderLabel = Instance.new("TextLabel")
+            sliderLabel.Size = UDim2.new(0, 15, 0, 16)
+            sliderLabel.Position = UDim2.new(0, 10, 0, yPos)
+            sliderLabel.BackgroundTransparency = 1
+            sliderLabel.Text = name
+            sliderLabel.TextColor3 = Theme.TextDim
+            sliderLabel.TextSize = 11
+            sliderLabel.Font = Enum.Font.GothamBold
+            sliderLabel.ZIndex = 101
+            sliderLabel.Parent = popup
+            
+            local valueLabel = Instance.new("TextLabel")
+            valueLabel.Size = UDim2.new(0, 30, 0, 16)
+            valueLabel.Position = UDim2.new(1, -35, 0, yPos)
+            valueLabel.BackgroundTransparency = 1
+            valueLabel.Text = tostring(defaultVal)
+            valueLabel.TextColor3 = Theme.TextDim
+            valueLabel.TextSize = 10
+            valueLabel.Font = Enum.Font.Gotham
+            valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+            valueLabel.ZIndex = 101
+            valueLabel.Parent = popup
+            
+            local sliderBack = Instance.new("Frame")
+            sliderBack.Size = UDim2.new(1, -90, 0, 4)
+            sliderBack.Position = UDim2.new(0, 30, 0, yPos + 6)
+            sliderBack.BackgroundColor3 = Theme.Tertiary
+            sliderBack.BorderSizePixel = 0
+            sliderBack.ZIndex = 101
+            sliderBack.Parent = popup
+            
+            Corner(sliderBack, 2)
+            
+            local sliderFill = Instance.new("Frame")
+            sliderFill.Size = UDim2.new(defaultVal / 255, 0, 1, 0)
+            sliderFill.BackgroundColor3 = Theme.Accent
+            sliderFill.BorderSizePixel = 0
+            sliderFill.ZIndex = 101
+            sliderFill.Parent = sliderBack
+            
+            Corner(sliderFill, 2)
+            
+            local sliderBtn = Instance.new("TextButton")
+            sliderBtn.Size = UDim2.new(0, 10, 0, 10)
+            sliderBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+            sliderBtn.Position = UDim2.new(defaultVal / 255, 0, 0.5, 0)
+            sliderBtn.BackgroundColor3 = Theme.Accent
+            sliderBtn.Text = ""
+            sliderBtn.BorderSizePixel = 0
+            sliderBtn.ZIndex = 102
+            sliderBtn.Parent = sliderBack
+            
+            Corner(sliderBtn, 5)
+            
+            local dragging = false
+            
+            local function update(input)
+                local pos = math.clamp((input.Position.X - sliderBack.AbsolutePosition.X) / sliderBack.AbsoluteSize.X, 0, 1)
+                local value = math.floor(pos * 255)
+                
+                if colorIndex == 1 then r = value
+                elseif colorIndex == 2 then g = value
+                else b = value end
+                
+                sliderFill.Size = UDim2.new(pos, 0, 1, 0)
+                sliderBtn.Position = UDim2.new(pos, 0, 0.5, 0)
+                valueLabel.Text = tostring(value)
+                updateColor()
+            end
+            
+            sliderBtn.MouseButton1Down:Connect(function() dragging = true end)
+            UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+            end)
+            UserInputService.InputChanged:Connect(function(input)
+                if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then update(input) end
+            end)
+            sliderBack.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then update(input) end
+            end)
+        end
+        
+        createSlider("R", 85, r, 1)
+        createSlider("G", 115, g, 2)
+        createSlider("B", 145, b, 3)
+        
+        popup.Size = UDim2.new(0, 0, 0, 0)
+        Tween(popup, {Size = UDim2.new(0, 250, 0, 180)}, 0.2)
+    end)
     
     return frame
 end
