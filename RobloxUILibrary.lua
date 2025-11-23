@@ -57,7 +57,7 @@ function UILibrary.new(title)
     loadingFrame.Name = "LoadingScreen"
     loadingFrame.Size = UDim2.new(1, 0, 1, 0)
     loadingFrame.Position = UDim2.new(0, 0, 0, 0)
-    loadingFrame.BackgroundTransparency = 1
+    loadingFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
     loadingFrame.BorderSizePixel = 0
     loadingFrame.ZIndex = 100
     loadingFrame.Parent = self.ScreenGui
@@ -125,6 +125,7 @@ function UILibrary.new(title)
     self.MainFrame.Active = true
     self.MainFrame.Draggable = false
     self.MainFrame.ZIndex = 2
+    self.MainFrame.Visible = false
     self.MainFrame.Parent = self.ScreenGui
     
     Corner(self.MainFrame, 6)
@@ -244,11 +245,12 @@ function UILibrary.new(title)
         end
     end)
     
-    self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
-    Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.3)
-    
     -- Remove loading screen after UI loads
     task.wait(4)
+    self.MainFrame.Visible = true
+    self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
+    Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.3)
+    Tween(loadingFrame, {BackgroundTransparency = 1}, 0.3)
     Tween(loadingContainer, {BackgroundTransparency = 1}, 0.3)
     Tween(brandLabel, {TextTransparency = 1}, 0.3)
     Tween(loadingLabel, {TextTransparency = 1}, 0.3)
