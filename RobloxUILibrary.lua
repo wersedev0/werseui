@@ -58,7 +58,7 @@ function UILibrary.new(title)
     loadingFrame.Size = UDim2.new(1, 0, 1, 0)
     loadingFrame.Position = UDim2.new(0, 0, 0, 0)
     loadingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    loadingFrame.BackgroundTransparency = 0.7
+    loadingFrame.BackgroundTransparency = 0.85
     loadingFrame.BorderSizePixel = 0
     loadingFrame.ZIndex = 100
     loadingFrame.Parent = self.ScreenGui
