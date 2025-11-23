@@ -1,6 +1,3 @@
--- Minimal UI Library v3.0 - Black & White Theme
--- Optimized & Clean Design
-
 local UILibrary = {}
 UILibrary.__index = UILibrary
 
@@ -52,7 +49,6 @@ function UILibrary.new(title)
     self.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     self.ScreenGui.Parent = game:GetService("CoreGui")
     
-    -- Loading Screen
     local loadingFrame = Instance.new("Frame")
     loadingFrame.Name = "LoadingScreen"
     loadingFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -107,7 +103,6 @@ function UILibrary.new(title)
     authorLabel.ZIndex = 102
     authorLabel.Parent = loadingContainer
     
-    -- Animate loading text
     task.spawn(function()
         local dots = 0
         while loadingFrame.Parent do
@@ -142,7 +137,6 @@ function UILibrary.new(title)
     
     Corner(self.TitleBar, 6)
     
-    -- Make title bar draggable
     local dragging = false
     local dragStart = nil
     local startPos = nil
@@ -246,7 +240,6 @@ function UILibrary.new(title)
         end
     end)
     
-    -- Remove loading screen after UI loads (async)
     task.spawn(function()
         task.wait(4)
         self.MainFrame.Visible = true
@@ -670,7 +663,6 @@ function UILibrary:CreateColorPicker(text, default, callback)
         if self.ColorPickerOpen then return end
         self.ColorPickerOpen = true
         
-        -- Block menu interactions
         local blocker = Instance.new("Frame")
         blocker.Size = UDim2.new(1, 0, 1, 0)
         blocker.Position = UDim2.new(0, 0, 0, 0)
@@ -681,7 +673,6 @@ function UILibrary:CreateColorPicker(text, default, callback)
         
         local popup = Instance.new("Frame")
         popup.Size = UDim2.new(0, 250, 0, 180)
-        -- Center in menu instead of screen
         popup.Position = UDim2.new(0.5, -125, 0.5, -90)
         popup.BackgroundColor3 = Theme.Background
         popup.BorderSizePixel = 0
@@ -898,3 +889,4 @@ function UILibrary:Notify(title, message, duration)
 end
 
 return UILibrary
+
