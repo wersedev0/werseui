@@ -1,8 +1,12 @@
+-- Minimal UI Library v3.0 - Black & White Theme
+-- Optimized & Clean Design
+
 local UILibrary = {}
 UILibrary.__index = UILibrary
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 local Theme = {
     Background = Color3.fromRGB(15, 15, 15),
@@ -15,8 +19,40 @@ local Theme = {
     AccentHover = Color3.fromRGB(200, 200, 200),
 }
 
-local function Tween(obj, props, time)
-    TweenService:Create(obj, TweenInfo.new(time or 0.2, Enum.EasingStyle.Quad), props):Play()
+-- Animation presets for better performance
+local TweenPresets = {
+    Smooth = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+    Fast = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+    Bounce = TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+    Spring = TweenInfo.new(0.5, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out),
+    Instant = TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+}
+
+-- Active tweens cache for cancellation
+local ActiveTweens = {}
+
+local function Tween(obj, props, time, style)
+    -- Cancel existing tween on this object if any
+    if ActiveTweens[obj] then
+        ActiveTweens[obj]:Cancel()
+    end
+    
+    local tweenInfo = style or TweenInfo.new(time or 0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tween = TweenService:Create(obj, tweenInfo, props)
+    ActiveTweens[obj] = tween
+    
+    tween.Completed:Connect(function()
+        if ActiveTweens[obj] == tween then
+            ActiveTweens[obj] = nil
+        end
+    end)
+    
+    tween:Play()
+    return tween
+end
+
+local function TweenPreset(obj, props, preset)
+    return Tween(obj, props, nil, TweenPresets[preset] or TweenPresets.Smooth)
 end
 
 local function Corner(parent, radius)
@@ -34,6 +70,21 @@ local function Stroke(parent, color, thickness)
     return s
 end
 
+local function Shadow(parent, size, transparency)
+    local shadow = Instance.new("ImageLabel")
+    shadow.Name = "Shadow"
+    shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+    shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+    shadow.Size = UDim2.new(1, size or 20, 1, size or 20)
+    shadow.BackgroundTransparency = 1
+    shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+    shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    shadow.ImageTransparency = transparency or 0.7
+    shadow.ZIndex = parent.ZIndex - 1
+    shadow.Parent = parent
+    return shadow
+end
+
 function UILibrary.new(title)
     local self = setmetatable({}, UILibrary)
     
@@ -49,6 +100,7 @@ function UILibrary.new(title)
     self.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     self.ScreenGui.Parent = game:GetService("CoreGui")
     
+    -- Loading Screen
     local loadingFrame = Instance.new("Frame")
     loadingFrame.Name = "LoadingScreen"
     loadingFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -60,8 +112,8 @@ function UILibrary.new(title)
     loadingFrame.Parent = self.ScreenGui
     
     local loadingContainer = Instance.new("Frame")
-    loadingContainer.Size = UDim2.new(0, 400, 0, 120)
-    loadingContainer.Position = UDim2.new(0.5, -200, 0.5, -60)
+    loadingContainer.Size = UDim2.new(0, 400, 0, 140)
+    loadingContainer.Position = UDim2.new(0.5, -200, 0.5, -70)
     loadingContainer.BackgroundColor3 = Theme.Secondary
     loadingContainer.BorderSizePixel = 0
     loadingContainer.ZIndex = 101
@@ -81,6 +133,16 @@ function UILibrary.new(title)
     brandLabel.ZIndex = 102
     brandLabel.Parent = loadingContainer
     
+    -- Pulsing animation for brand
+    task.spawn(function()
+        while loadingFrame.Parent do
+            TweenPreset(brandLabel, {TextTransparency = 0.3}, "Smooth")
+            task.wait(0.8)
+            TweenPreset(brandLabel, {TextTransparency = 0}, "Smooth")
+            task.wait(0.8)
+        end
+    end)
+    
     local loadingLabel = Instance.new("TextLabel")
     loadingLabel.Size = UDim2.new(1, 0, 0, 20)
     loadingLabel.Position = UDim2.new(0, 0, 0, 60)
@@ -92,9 +154,27 @@ function UILibrary.new(title)
     loadingLabel.ZIndex = 102
     loadingLabel.Parent = loadingContainer
     
+    -- Progress bar
+    local progressBack = Instance.new("Frame")
+    progressBack.Size = UDim2.new(1, -40, 0, 4)
+    progressBack.Position = UDim2.new(0, 20, 0, 90)
+    progressBack.BackgroundColor3 = Theme.Tertiary
+    progressBack.BorderSizePixel = 0
+    progressBack.ZIndex = 102
+    progressBack.Parent = loadingContainer
+    Corner(progressBack, 2)
+    
+    local progressFill = Instance.new("Frame")
+    progressFill.Size = UDim2.new(0, 0, 1, 0)
+    progressFill.BackgroundColor3 = Theme.Accent
+    progressFill.BorderSizePixel = 0
+    progressFill.ZIndex = 103
+    progressFill.Parent = progressBack
+    Corner(progressFill, 2)
+    
     local authorLabel = Instance.new("TextLabel")
     authorLabel.Size = UDim2.new(1, 0, 0, 18)
-    authorLabel.Position = UDim2.new(0, 0, 1, -25)
+    authorLabel.Position = UDim2.new(0, 0, 1, -30)
     authorLabel.BackgroundTransparency = 1
     authorLabel.Text = "by wersedev"
     authorLabel.TextColor3 = Theme.TextDim
@@ -103,6 +183,7 @@ function UILibrary.new(title)
     authorLabel.ZIndex = 102
     authorLabel.Parent = loadingContainer
     
+    -- Animate loading text
     task.spawn(function()
         local dots = 0
         while loadingFrame.Parent do
@@ -110,6 +191,11 @@ function UILibrary.new(title)
             loadingLabel.Text = "Loading" .. string.rep(".", dots)
             task.wait(0.5)
         end
+    end)
+    
+    -- Animate progress bar
+    task.spawn(function()
+        TweenPreset(progressFill, {Size = UDim2.new(1, 0, 1, 0)}, "Smooth")
     end)
     
     self.MainFrame = Instance.new("Frame")
@@ -137,6 +223,16 @@ function UILibrary.new(title)
     
     Corner(self.TitleBar, 6)
     
+    -- Add subtle gradient overlay
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 30, 30)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 25))
+    }
+    gradient.Rotation = 90
+    gradient.Parent = self.TitleBar
+    
+    -- Make title bar draggable
     local dragging = false
     local dragStart = nil
     local startPos = nil
@@ -192,17 +288,20 @@ function UILibrary.new(title)
     Corner(closeBtn, 4)
     
     closeBtn.MouseButton1Click:Connect(function()
-        Tween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.2)
-        task.wait(0.2)
+        TweenPreset(self.MainFrame, {
+            Size = UDim2.new(0, 0, 0, 0),
+            BackgroundTransparency = 1
+        }, "Fast")
+        task.wait(0.15)
         self.ScreenGui:Destroy()
     end)
     
     closeBtn.MouseEnter:Connect(function()
-        Tween(closeBtn, {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}, 0.15)
+        TweenPreset(closeBtn, {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}, "Fast")
     end)
     
     closeBtn.MouseLeave:Connect(function()
-        Tween(closeBtn, {BackgroundColor3 = Theme.Tertiary}, 0.15)
+        TweenPreset(closeBtn, {BackgroundColor3 = Theme.Tertiary}, "Fast")
     end)
     
     self.TabContainer = Instance.new("Frame")
@@ -220,10 +319,10 @@ function UILibrary.new(title)
     tabLayout.Parent = self.TabContainer
     
     local tabPadding = Instance.new("UIPadding")
-    tabPadding.PaddingTop = UDim.new(0, 6)
-    tabPadding.PaddingBottom = UDim.new(0, 6)
-    tabPadding.PaddingLeft = UDim.new(0, 6)
-    tabPadding.PaddingRight = UDim.new(0, 6)
+    tabPadding.PaddingTop = UDim.new(0, 8)
+    tabPadding.PaddingBottom = UDim.new(0, 8)
+    tabPadding.PaddingLeft = UDim.new(0, 8)
+    tabPadding.PaddingRight = UDim.new(0, 8)
     tabPadding.Parent = self.TabContainer
     
     self.ContentContainer = Instance.new("Frame")
@@ -240,17 +339,29 @@ function UILibrary.new(title)
         end
     end)
     
+    -- Remove loading screen after UI loads (async)
     task.spawn(function()
-        task.wait(4)
+        task.wait(3.5)
         self.MainFrame.Visible = true
         self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
-        Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.3)
-        Tween(loadingFrame, {BackgroundTransparency = 1}, 0.3)
-        Tween(loadingContainer, {BackgroundTransparency = 1}, 0.3)
-        Tween(brandLabel, {TextTransparency = 1}, 0.3)
-        Tween(loadingLabel, {TextTransparency = 1}, 0.3)
-        Tween(authorLabel, {TextTransparency = 1}, 0.3)
-        task.wait(0.3)
+        self.MainFrame.BackgroundTransparency = 1
+        
+        -- Smooth scale + fade in
+        TweenPreset(self.MainFrame, {
+            Size = UDim2.new(0, 500, 0, 400),
+            BackgroundTransparency = 0
+        }, "Bounce")
+        
+        -- Fade out loading screen
+        TweenPreset(loadingFrame, {BackgroundTransparency = 1}, "Smooth")
+        TweenPreset(loadingContainer, {BackgroundTransparency = 1}, "Smooth")
+        TweenPreset(brandLabel, {TextTransparency = 1}, "Smooth")
+        TweenPreset(loadingLabel, {TextTransparency = 1}, "Smooth")
+        TweenPreset(progressBack, {BackgroundTransparency = 1}, "Smooth")
+        TweenPreset(progressFill, {BackgroundTransparency = 1}, "Smooth")
+        TweenPreset(authorLabel, {TextTransparency = 1}, "Smooth")
+        
+        task.wait(0.5)
         loadingFrame:Destroy()
     end)
 
@@ -263,10 +374,17 @@ function UILibrary:Toggle()
     
     if self.IsVisible then
         self.MainFrame.Visible = true
-        Tween(self.MainFrame, {Size = UDim2.new(0, 500, 0, 400)}, 0.25)
+        self.MainFrame.BackgroundTransparency = 1
+        TweenPreset(self.MainFrame, {
+            Size = UDim2.new(0, 500, 0, 400),
+            BackgroundTransparency = 0
+        }, "Bounce")
     else
-        Tween(self.MainFrame, {Size = UDim2.new(0, 0, 0, 0)}, 0.2)
-        task.wait(0.2)
+        TweenPreset(self.MainFrame, {
+            Size = UDim2.new(0, 0, 0, 0),
+            BackgroundTransparency = 1
+        }, "Fast")
+        task.wait(0.15)
         self.MainFrame.Visible = false
     end
 end
@@ -309,35 +427,42 @@ function UILibrary:CreateTab(name)
     tabContent.Parent = self.ContentContainer
     
     local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, 6)
+    layout.Padding = UDim.new(0, 8)
     layout.Parent = tabContent
     
     layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        tabContent.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 6)
+        tabContent.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 8)
     end)
     
     tabBtn.MouseButton1Click:Connect(function()
+        if self.CurrentTab == tab then return end
+        
         for _, t in pairs(self.Tabs) do
-            t.Button.BackgroundTransparency = 1
-            t.Button.TextColor3 = Theme.TextDim
-            t.Content.Visible = false
+            TweenPreset(t.Button, {BackgroundTransparency = 1, TextColor3 = Theme.TextDim}, "Fast")
+            if t.Content.Visible then
+                TweenPreset(t.Content, {BackgroundTransparency = 1}, "Fast")
+                task.wait(0.1)
+                t.Content.Visible = false
+                t.Content.BackgroundTransparency = 0
+            end
         end
         
-        tabBtn.BackgroundTransparency = 0
-        tabBtn.TextColor3 = Theme.Text
+        TweenPreset(tabBtn, {BackgroundTransparency = 0, TextColor3 = Theme.Text}, "Smooth")
         tabContent.Visible = true
+        tabContent.BackgroundTransparency = 1
+        TweenPreset(tabContent, {BackgroundTransparency = 0}, "Smooth")
         self.CurrentTab = tab
     end)
     
     tabBtn.MouseEnter:Connect(function()
         if self.CurrentTab ~= tab then
-            Tween(tabBtn, {BackgroundTransparency = 0.5}, 0.15)
+            TweenPreset(tabBtn, {BackgroundTransparency = 0.5}, "Fast")
         end
     end)
     
     tabBtn.MouseLeave:Connect(function()
         if self.CurrentTab ~= tab then
-            Tween(tabBtn, {BackgroundTransparency = 1}, 0.15)
+            TweenPreset(tabBtn, {BackgroundTransparency = 1}, "Fast")
         end
     end)
     
@@ -374,15 +499,19 @@ function UILibrary:CreateButton(text, callback)
     Stroke(btn, Theme.Border, 1)
     
     btn.MouseButton1Click:Connect(function()
+        -- Press animation
+        TweenPreset(btn, {Size = UDim2.new(1, -12, 0, 30)}, "Instant")
+        task.wait(0.1)
+        TweenPreset(btn, {Size = UDim2.new(1, -12, 0, 32)}, "Bounce")
         if callback then callback() end
     end)
     
     btn.MouseEnter:Connect(function()
-        Tween(btn, {BackgroundColor3 = Theme.Tertiary}, 0.15)
+        TweenPreset(btn, {BackgroundColor3 = Theme.Tertiary}, "Fast")
     end)
     
     btn.MouseLeave:Connect(function()
-        Tween(btn, {BackgroundColor3 = Theme.Secondary}, 0.15)
+        TweenPreset(btn, {BackgroundColor3 = Theme.Secondary}, "Fast")
     end)
     
     return btn
@@ -434,8 +563,10 @@ function UILibrary:CreateToggle(text, default, callback)
     
     toggle.MouseButton1Click:Connect(function()
         toggled = not toggled
-        Tween(toggle, {BackgroundColor3 = toggled and Theme.Accent or Theme.Tertiary}, 0.2)
-        Tween(indicator, {Position = toggled and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)}, 0.2)
+        TweenPreset(toggle, {BackgroundColor3 = toggled and Theme.Accent or Theme.Tertiary}, "Smooth")
+        TweenPreset(indicator, {
+            Position = toggled and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
+        }, "Spring")
         if callback then callback(toggled) end
     end)
     
@@ -663,6 +794,7 @@ function UILibrary:CreateColorPicker(text, default, callback)
         if self.ColorPickerOpen then return end
         self.ColorPickerOpen = true
         
+        -- Block menu interactions
         local blocker = Instance.new("Frame")
         blocker.Size = UDim2.new(1, 0, 1, 0)
         blocker.Position = UDim2.new(0, 0, 0, 0)
@@ -673,6 +805,7 @@ function UILibrary:CreateColorPicker(text, default, callback)
         
         local popup = Instance.new("Frame")
         popup.Size = UDim2.new(0, 250, 0, 180)
+        -- Center in menu instead of screen
         popup.Position = UDim2.new(0.5, -125, 0.5, -90)
         popup.BackgroundColor3 = Theme.Background
         popup.BorderSizePixel = 0
@@ -826,7 +959,7 @@ function UILibrary:CreateColorPicker(text, default, callback)
         createSlider("B", 145, b, 3)
         
         popup.Size = UDim2.new(0, 0, 0, 0)
-        Tween(popup, {Size = UDim2.new(0, 250, 0, 180)}, 0.2)
+        TweenPreset(popup, {Size = UDim2.new(0, 250, 0, 180)}, "Bounce")
     end)
     
     return frame
@@ -878,15 +1011,14 @@ function UILibrary:Notify(title, message, duration)
     msgLabel.TextWrapped = true
     msgLabel.Parent = notif
     
-    Tween(notif, {Position = UDim2.new(1, -230, 1, -60)}, 0.3)
+    TweenPreset(notif, {Position = UDim2.new(1, -230, 1, -60)}, "Bounce")
     
     task.spawn(function()
         task.wait(duration or 2)
-        Tween(notif, {Position = UDim2.new(1, 230, 1, -60)}, 0.2)
-        task.wait(0.2)
+        TweenPreset(notif, {Position = UDim2.new(1, 230, 1, -60)}, "Fast")
+        task.wait(0.15)
         notif:Destroy()
     end)
 end
 
 return UILibrary
-
