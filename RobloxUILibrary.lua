@@ -1,5 +1,5 @@
--- Minimal UI Library v3.0 - Black & White Theme
--- Optimized & Clean Design
+-- Modern UI Library v3.0 - Pure Black Theme
+-- Professional & Sleek Design
 
 local UILibrary = {}
 UILibrary.__index = UILibrary
@@ -9,14 +9,15 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
 local Theme = {
-    Background = Color3.fromRGB(18, 18, 18),
-    Secondary = Color3.fromRGB(28, 28, 28),
-    Tertiary = Color3.fromRGB(38, 38, 38),
-    Border = Color3.fromRGB(50, 50, 50),
-    Text = Color3.fromRGB(255, 255, 255),
-    TextDim = Color3.fromRGB(170, 170, 170),
-    Accent = Color3.fromRGB(255, 255, 255),
-    AccentHover = Color3.fromRGB(220, 220, 220),
+    Background = Color3.fromRGB(10, 10, 10),        -- Pure black
+    Secondary = Color3.fromRGB(20, 20, 20),         -- Dark black
+    Tertiary = Color3.fromRGB(30, 30, 30),          -- Lighter black
+    Component = Color3.fromRGB(25, 25, 25),         -- Component background
+    Border = Color3.fromRGB(40, 40, 40),            -- Subtle border
+    Text = Color3.fromRGB(255, 255, 255),           -- Pure white
+    TextDim = Color3.fromRGB(180, 180, 180),        -- Light gray
+    Accent = Color3.fromRGB(255, 255, 255),         -- White accent
+    AccentHover = Color3.fromRGB(200, 200, 200),    -- Gray hover
 }
 
 -- Animation presets for better performance
@@ -484,9 +485,9 @@ function UILibrary:CreateButton(text, callback)
     
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -12, 0, 32)
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    btn.BackgroundColor3 = Theme.Component
     btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextColor3 = Theme.Text
     btn.TextSize = 12
     btn.Font = Enum.Font.Gotham
     btn.BorderSizePixel = 0
@@ -499,8 +500,8 @@ function UILibrary:CreateButton(text, callback)
     -- Add subtle gradient
     local gradient = Instance.new("UIGradient")
     gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 45)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 35))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 30, 30)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
     }
     gradient.Rotation = 90
     gradient.Parent = btn
@@ -514,11 +515,11 @@ function UILibrary:CreateButton(text, callback)
     end)
     
     btn.MouseEnter:Connect(function()
-        TweenPreset(btn, {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}, "Fast")
+        TweenPreset(btn, {BackgroundColor3 = Theme.Tertiary}, "Fast")
     end)
     
     btn.MouseLeave:Connect(function()
-        TweenPreset(btn, {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}, "Fast")
+        TweenPreset(btn, {BackgroundColor3 = Theme.Component}, "Fast")
     end)
     
     return btn
@@ -529,7 +530,7 @@ function UILibrary:CreateToggle(text, default, callback)
     
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, -12, 0, 32)
-    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.BackgroundColor3 = Theme.Component
     frame.BorderSizePixel = 0
     frame.Parent = container
     
@@ -585,7 +586,7 @@ function UILibrary:CreateSlider(text, min, max, default, callback)
     
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, -12, 0, 45)
-    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.BackgroundColor3 = Theme.Component
     frame.BorderSizePixel = 0
     frame.Parent = container
     
@@ -677,7 +678,7 @@ function UILibrary:CreateSection(text)
     
     local sectionFrame = Instance.new("Frame")
     sectionFrame.Size = UDim2.new(1, -12, 0, 35)
-    sectionFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    sectionFrame.BackgroundColor3 = Theme.Tertiary
     sectionFrame.BorderSizePixel = 0
     sectionFrame.Parent = container
     
@@ -687,7 +688,7 @@ function UILibrary:CreateSection(text)
     local accentBar = Instance.new("Frame")
     accentBar.Size = UDim2.new(0, 3, 1, -8)
     accentBar.Position = UDim2.new(0, 4, 0, 4)
-    accentBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    accentBar.BackgroundColor3 = Theme.Accent
     accentBar.BorderSizePixel = 0
     accentBar.Parent = sectionFrame
     
@@ -698,7 +699,7 @@ function UILibrary:CreateSection(text)
     section.Position = UDim2.new(0, 15, 0, 0)
     section.BackgroundTransparency = 1
     section.Text = text
-    section.TextColor3 = Color3.fromRGB(255, 255, 255)
+    section.TextColor3 = Theme.Text
     section.TextSize = 13
     section.Font = Enum.Font.GothamBold
     section.TextXAlignment = Enum.TextXAlignment.Left
@@ -715,7 +716,7 @@ function UILibrary:CreateLabel(text)
     label.AutomaticSize = Enum.AutomaticSize.Y
     label.BackgroundTransparency = 1
     label.Text = text
-    label.TextColor3 = Color3.fromRGB(200, 200, 200)
+    label.TextColor3 = Theme.TextDim
     label.TextSize = 12
     label.Font = Enum.Font.Gotham
     label.TextXAlignment = Enum.TextXAlignment.Left
