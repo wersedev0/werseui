@@ -9,14 +9,14 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
 local Theme = {
-    Background = Color3.fromRGB(15, 15, 15),
-    Secondary = Color3.fromRGB(25, 25, 25),
-    Tertiary = Color3.fromRGB(35, 35, 35),
-    Border = Color3.fromRGB(45, 45, 45),
+    Background = Color3.fromRGB(18, 18, 18),
+    Secondary = Color3.fromRGB(28, 28, 28),
+    Tertiary = Color3.fromRGB(38, 38, 38),
+    Border = Color3.fromRGB(50, 50, 50),
     Text = Color3.fromRGB(255, 255, 255),
-    TextDim = Color3.fromRGB(150, 150, 150),
+    TextDim = Color3.fromRGB(170, 170, 170),
     Accent = Color3.fromRGB(255, 255, 255),
-    AccentHover = Color3.fromRGB(200, 200, 200),
+    AccentHover = Color3.fromRGB(220, 220, 220),
 }
 
 -- Animation presets for better performance
@@ -315,7 +315,7 @@ function UILibrary.new(title)
     Corner(self.TabContainer, 4)
     
     local tabLayout = Instance.new("UIListLayout")
-    tabLayout.Padding = UDim.new(0, 4)
+    tabLayout.Padding = UDim.new(0, 5)
     tabLayout.Parent = self.TabContainer
     
     local tabPadding = Instance.new("UIPadding")
@@ -401,26 +401,26 @@ function UILibrary:CreateTab(name)
     local tab = {}
     
     local tabBtn = Instance.new("TextButton")
-    tabBtn.Size = UDim2.new(1, 0, 0, 32)
+    tabBtn.Size = UDim2.new(1, 0, 0, 34)
     tabBtn.BackgroundColor3 = Theme.Tertiary
     tabBtn.BackgroundTransparency = 1
     tabBtn.Text = name
     tabBtn.TextColor3 = Theme.TextDim
     tabBtn.TextSize = 12
-    tabBtn.Font = Enum.Font.Gotham
+    tabBtn.Font = Enum.Font.GothamMedium
     tabBtn.BorderSizePixel = 0
     tabBtn.AutoButtonColor = false
     tabBtn.ZIndex = 4
     tabBtn.Parent = self.TabContainer
     
-    Corner(tabBtn, 4)
+    Corner(tabBtn, 5)
     
     local tabContent = Instance.new("ScrollingFrame")
     tabContent.Size = UDim2.new(1, 0, 1, 0)
     tabContent.BackgroundTransparency = 1
     tabContent.BorderSizePixel = 0
-    tabContent.ScrollBarThickness = 2
-    tabContent.ScrollBarImageColor3 = Theme.Border
+    tabContent.ScrollBarThickness = 4
+    tabContent.ScrollBarImageColor3 = Theme.Accent
     tabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
     tabContent.Visible = false
     tabContent.ZIndex = 4
@@ -498,6 +498,15 @@ function UILibrary:CreateButton(text, callback)
     Corner(btn, 4)
     Stroke(btn, Theme.Border, 1)
     
+    -- Add subtle gradient
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(32, 32, 32)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 28, 28))
+    }
+    gradient.Rotation = 90
+    gradient.Parent = btn
+    
     btn.MouseButton1Click:Connect(function()
         -- Press animation
         TweenPreset(btn, {Size = UDim2.new(1, -12, 0, 30)}, "Instant")
@@ -541,23 +550,23 @@ function UILibrary:CreateToggle(text, default, callback)
     label.Parent = frame
     
     local toggle = Instance.new("TextButton")
-    toggle.Size = UDim2.new(0, 36, 0, 18)
-    toggle.Position = UDim2.new(1, -42, 0.5, -9)
+    toggle.Size = UDim2.new(0, 40, 0, 20)
+    toggle.Position = UDim2.new(1, -46, 0.5, -10)
     toggle.BackgroundColor3 = default and Theme.Accent or Theme.Tertiary
     toggle.Text = ""
     toggle.BorderSizePixel = 0
     toggle.Parent = frame
     
-    Corner(toggle, 9)
+    Corner(toggle, 10)
     
     local indicator = Instance.new("Frame")
-    indicator.Size = UDim2.new(0, 14, 0, 14)
-    indicator.Position = default and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
+    indicator.Size = UDim2.new(0, 16, 0, 16)
+    indicator.Position = default and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
     indicator.BackgroundColor3 = Theme.Background
     indicator.BorderSizePixel = 0
     indicator.Parent = toggle
     
-    Corner(indicator, 7)
+    Corner(indicator, 8)
     
     local toggled = default or false
     
@@ -565,7 +574,7 @@ function UILibrary:CreateToggle(text, default, callback)
         toggled = not toggled
         TweenPreset(toggle, {BackgroundColor3 = toggled and Theme.Accent or Theme.Tertiary}, "Smooth")
         TweenPreset(indicator, {
-            Position = toggled and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
+            Position = toggled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
         }, "Spring")
         if callback then callback(toggled) end
     end)
@@ -608,13 +617,13 @@ function UILibrary:CreateSlider(text, min, max, default, callback)
     valueLabel.Parent = frame
     
     local sliderBack = Instance.new("Frame")
-    sliderBack.Size = UDim2.new(1, -20, 0, 4)
+    sliderBack.Size = UDim2.new(1, -20, 0, 5)
     sliderBack.Position = UDim2.new(0, 10, 1, -12)
     sliderBack.BackgroundColor3 = Theme.Tertiary
     sliderBack.BorderSizePixel = 0
     sliderBack.Parent = frame
     
-    Corner(sliderBack, 2)
+    Corner(sliderBack, 3)
     
     local sliderFill = Instance.new("Frame")
     sliderFill.Size = UDim2.new(0, 0, 1, 0)
@@ -622,10 +631,10 @@ function UILibrary:CreateSlider(text, min, max, default, callback)
     sliderFill.BorderSizePixel = 0
     sliderFill.Parent = sliderBack
     
-    Corner(sliderFill, 2)
+    Corner(sliderFill, 3)
     
     local sliderBtn = Instance.new("TextButton")
-    sliderBtn.Size = UDim2.new(0, 12, 0, 12)
+    sliderBtn.Size = UDim2.new(0, 14, 0, 14)
     sliderBtn.AnchorPoint = Vector2.new(0.5, 0.5)
     sliderBtn.Position = UDim2.new(0, 0, 0.5, 0)
     sliderBtn.BackgroundColor3 = Theme.Accent
@@ -633,7 +642,7 @@ function UILibrary:CreateSlider(text, min, max, default, callback)
     sliderBtn.BorderSizePixel = 0
     sliderBtn.Parent = sliderBack
     
-    Corner(sliderBtn, 6)
+    Corner(sliderBtn, 7)
     
     local dragging = false
     local currentValue = default or min
@@ -668,31 +677,60 @@ end
 function UILibrary:CreateSection(text)
     local container = self.Content or self.Container
     
+    local sectionFrame = Instance.new("Frame")
+    sectionFrame.Size = UDim2.new(1, -12, 0, 35)
+    sectionFrame.BackgroundColor3 = Theme.Tertiary
+    sectionFrame.BorderSizePixel = 0
+    sectionFrame.Parent = container
+    
+    Corner(sectionFrame, 4)
+    
+    -- Left accent bar
+    local accentBar = Instance.new("Frame")
+    accentBar.Size = UDim2.new(0, 3, 1, -8)
+    accentBar.Position = UDim2.new(0, 4, 0, 4)
+    accentBar.BackgroundColor3 = Theme.Accent
+    accentBar.BorderSizePixel = 0
+    accentBar.Parent = sectionFrame
+    
+    Corner(accentBar, 2)
+    
     local section = Instance.new("TextLabel")
-    section.Size = UDim2.new(1, -12, 0, 30)
+    section.Size = UDim2.new(1, -20, 1, 0)
+    section.Position = UDim2.new(0, 15, 0, 0)
     section.BackgroundTransparency = 1
     section.Text = text
     section.TextColor3 = Theme.Text
-    section.TextSize = 14
+    section.TextSize = 13
     section.Font = Enum.Font.GothamBold
     section.TextXAlignment = Enum.TextXAlignment.Left
-    section.Parent = container
+    section.Parent = sectionFrame
     
-    return section
+    return sectionFrame
 end
 
 function UILibrary:CreateLabel(text)
     local container = self.Content or self.Container
     
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -12, 0, 24)
+    label.Size = UDim2.new(1, -12, 0, 0)
+    label.AutomaticSize = Enum.AutomaticSize.Y
     label.BackgroundTransparency = 1
     label.Text = text
     label.TextColor3 = Theme.TextDim
-    label.TextSize = 11
+    label.TextSize = 12
     label.Font = Enum.Font.Gotham
     label.TextXAlignment = Enum.TextXAlignment.Left
+    label.TextWrapped = true
     label.Parent = container
+    
+    -- Add padding for better spacing
+    local padding = Instance.new("UIPadding")
+    padding.PaddingLeft = UDim.new(0, 4)
+    padding.PaddingRight = UDim.new(0, 4)
+    padding.PaddingTop = UDim.new(0, 4)
+    padding.PaddingBottom = UDim.new(0, 4)
+    padding.Parent = label
     
     return label
 end
