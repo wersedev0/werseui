@@ -484,9 +484,9 @@ function UILibrary:CreateButton(text, callback)
     
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -12, 0, 32)
-    btn.BackgroundColor3 = Theme.Secondary
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     btn.Text = text
-    btn.TextColor3 = Theme.Text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.TextSize = 12
     btn.Font = Enum.Font.Gotham
     btn.BorderSizePixel = 0
@@ -499,8 +499,8 @@ function UILibrary:CreateButton(text, callback)
     -- Add subtle gradient
     local gradient = Instance.new("UIGradient")
     gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(32, 32, 32)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 28, 28))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 45)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 35))
     }
     gradient.Rotation = 90
     gradient.Parent = btn
@@ -514,11 +514,11 @@ function UILibrary:CreateButton(text, callback)
     end)
     
     btn.MouseEnter:Connect(function()
-        TweenPreset(btn, {BackgroundColor3 = Theme.Tertiary}, "Fast")
+        TweenPreset(btn, {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}, "Fast")
     end)
     
     btn.MouseLeave:Connect(function()
-        TweenPreset(btn, {BackgroundColor3 = Theme.Secondary}, "Fast")
+        TweenPreset(btn, {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}, "Fast")
     end)
     
     return btn
@@ -529,7 +529,7 @@ function UILibrary:CreateToggle(text, default, callback)
     
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, -12, 0, 32)
-    frame.BackgroundColor3 = Theme.Secondary
+    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     frame.BorderSizePixel = 0
     frame.Parent = container
     
@@ -541,7 +541,7 @@ function UILibrary:CreateToggle(text, default, callback)
     label.Position = UDim2.new(0, 10, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = text
-    label.TextColor3 = Theme.Text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.TextSize = 12
     label.Font = Enum.Font.Gotham
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -585,7 +585,7 @@ function UILibrary:CreateSlider(text, min, max, default, callback)
     
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, -12, 0, 45)
-    frame.BackgroundColor3 = Theme.Secondary
+    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     frame.BorderSizePixel = 0
     frame.Parent = container
     
@@ -597,7 +597,7 @@ function UILibrary:CreateSlider(text, min, max, default, callback)
     label.Position = UDim2.new(0, 10, 0, 6)
     label.BackgroundTransparency = 1
     label.Text = text
-    label.TextColor3 = Theme.Text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.TextSize = 12
     label.Font = Enum.Font.Gotham
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -677,7 +677,7 @@ function UILibrary:CreateSection(text)
     
     local sectionFrame = Instance.new("Frame")
     sectionFrame.Size = UDim2.new(1, -12, 0, 35)
-    sectionFrame.BackgroundColor3 = Theme.Tertiary
+    sectionFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
     sectionFrame.BorderSizePixel = 0
     sectionFrame.Parent = container
     
@@ -687,7 +687,7 @@ function UILibrary:CreateSection(text)
     local accentBar = Instance.new("Frame")
     accentBar.Size = UDim2.new(0, 3, 1, -8)
     accentBar.Position = UDim2.new(0, 4, 0, 4)
-    accentBar.BackgroundColor3 = Theme.Accent
+    accentBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     accentBar.BorderSizePixel = 0
     accentBar.Parent = sectionFrame
     
@@ -698,7 +698,7 @@ function UILibrary:CreateSection(text)
     section.Position = UDim2.new(0, 15, 0, 0)
     section.BackgroundTransparency = 1
     section.Text = text
-    section.TextColor3 = Theme.Text
+    section.TextColor3 = Color3.fromRGB(255, 255, 255)
     section.TextSize = 13
     section.Font = Enum.Font.GothamBold
     section.TextXAlignment = Enum.TextXAlignment.Left
@@ -715,7 +715,7 @@ function UILibrary:CreateLabel(text)
     label.AutomaticSize = Enum.AutomaticSize.Y
     label.BackgroundTransparency = 1
     label.Text = text
-    label.TextColor3 = Theme.TextDim
+    label.TextColor3 = Color3.fromRGB(200, 200, 200)
     label.TextSize = 12
     label.Font = Enum.Font.Gotham
     label.TextXAlignment = Enum.TextXAlignment.Left
