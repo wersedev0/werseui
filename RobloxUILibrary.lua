@@ -274,18 +274,16 @@ function UILibrary.new(title)
     self.TitleLabel.Parent = self.TitleBar
     
     local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 30, 0, 30)
-    closeBtn.Position = UDim2.new(1, -33, 0, 2.5)
-    closeBtn.BackgroundColor3 = Theme.Tertiary
+    closeBtn.Size = UDim2.new(0, 35, 0, 35)
+    closeBtn.Position = UDim2.new(1, -37, 0, 0)
+    closeBtn.BackgroundTransparency = 1
     closeBtn.Text = "×"
-    closeBtn.TextColor3 = Theme.Text
-    closeBtn.TextSize = 16
+    closeBtn.TextColor3 = Theme.TextDim
+    closeBtn.TextSize = 20
     closeBtn.Font = Enum.Font.GothamBold
     closeBtn.BorderSizePixel = 0
     closeBtn.ZIndex = 4
     closeBtn.Parent = self.TitleBar
-    
-    Corner(closeBtn, 4)
     
     closeBtn.MouseButton1Click:Connect(function()
         TweenPreset(self.MainFrame, {
@@ -297,11 +295,11 @@ function UILibrary.new(title)
     end)
     
     closeBtn.MouseEnter:Connect(function()
-        TweenPreset(closeBtn, {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}, "Fast")
+        TweenPreset(closeBtn, {TextColor3 = Color3.fromRGB(255, 80, 80)}, "Fast")
     end)
     
     closeBtn.MouseLeave:Connect(function()
-        TweenPreset(closeBtn, {BackgroundColor3 = Theme.Tertiary}, "Fast")
+        TweenPreset(closeBtn, {TextColor3 = Theme.TextDim}, "Fast")
     end)
     
     self.TabContainer = Instance.new("Frame")
@@ -828,6 +826,18 @@ function UILibrary:CreateColorPicker(text, default, callback)
     local currentColor = default or Color3.fromRGB(255, 255, 255)
     local currentPopup = nil
     
+    -- Preset color palette
+    local presetColors = {
+        {255, 255, 255}, {220, 220, 220}, {180, 180, 180}, {140, 140, 140}, {100, 100, 100}, {60, 60, 60}, {30, 30, 30}, {0, 0, 0},
+        {255, 200, 200}, {255, 150, 150}, {255, 100, 100}, {255, 50, 50}, {255, 0, 0}, {200, 0, 0}, {150, 0, 0}, {100, 0, 0},
+        {255, 220, 200}, {255, 180, 150}, {255, 140, 100}, {255, 100, 50}, {255, 140, 0}, {200, 100, 0}, {150, 80, 0}, {100, 50, 0},
+        {255, 255, 200}, {255, 255, 150}, {255, 255, 100}, {255, 255, 50}, {255, 255, 0}, {200, 200, 0}, {150, 150, 0}, {100, 100, 0},
+        {200, 255, 200}, {150, 255, 150}, {100, 255, 100}, {50, 255, 50}, {0, 255, 0}, {0, 200, 0}, {0, 150, 0}, {0, 100, 0},
+        {200, 255, 255}, {150, 255, 255}, {100, 255, 255}, {50, 255, 255}, {0, 255, 255}, {0, 200, 200}, {0, 150, 150}, {0, 100, 100},
+        {200, 200, 255}, {150, 150, 255}, {100, 100, 255}, {50, 50, 255}, {0, 0, 255}, {0, 0, 200}, {0, 0, 150}, {0, 0, 100},
+        {255, 200, 255}, {255, 150, 255}, {255, 100, 255}, {255, 50, 255}, {255, 0, 255}, {200, 0, 200}, {150, 0, 150}, {100, 0, 100},
+    }
+    
     colorBtn.MouseButton1Click:Connect(function()
         if self.ColorPickerOpen then return end
         self.ColorPickerOpen = true
@@ -842,162 +852,174 @@ function UILibrary:CreateColorPicker(text, default, callback)
         blocker.Parent = self.MainFrame
         
         local popup = Instance.new("Frame")
-        popup.Size = UDim2.new(0, 250, 0, 180)
-        -- Center in menu instead of screen
-        popup.Position = UDim2.new(0.5, -125, 0.5, -90)
+        popup.Size = UDim2.new(0, 320, 0, 360)
+        popup.Position = UDim2.new(0.5, -160, 0.5, -180)
         popup.BackgroundColor3 = Theme.Background
         popup.BorderSizePixel = 0
         popup.ZIndex = 50
         popup.Parent = self.MainFrame
         currentPopup = popup
         
-        Corner(popup, 6)
+        Corner(popup, 8)
         Stroke(popup, Theme.Border, 2)
         
+        -- Title bar
+        local titleBar = Instance.new("Frame")
+        titleBar.Size = UDim2.new(1, 0, 0, 35)
+        titleBar.BackgroundColor3 = Theme.Secondary
+        titleBar.BorderSizePixel = 0
+        titleBar.ZIndex = 51
+        titleBar.Parent = popup
+        Corner(titleBar, 8)
+        
         local popupTitle = Instance.new("TextLabel")
-        popupTitle.Size = UDim2.new(1, -40, 0, 30)
-        popupTitle.Position = UDim2.new(0, 10, 0, 5)
+        popupTitle.Size = UDim2.new(1, -40, 1, 0)
+        popupTitle.Position = UDim2.new(0, 12, 0, 0)
         popupTitle.BackgroundTransparency = 1
-        popupTitle.Text = "Select Color"
+        popupTitle.Text = "🎨 Select Color"
         popupTitle.TextColor3 = Theme.Text
-        popupTitle.TextSize = 13
+        popupTitle.TextSize = 14
         popupTitle.Font = Enum.Font.GothamBold
         popupTitle.TextXAlignment = Enum.TextXAlignment.Left
-        popupTitle.ZIndex = 51
-        popupTitle.Parent = popup
+        popupTitle.ZIndex = 52
+        popupTitle.Parent = titleBar
         
         local closePopup = Instance.new("TextButton")
-        closePopup.Size = UDim2.new(0, 25, 0, 25)
-        closePopup.Position = UDim2.new(1, -30, 0, 5)
-        closePopup.BackgroundColor3 = Theme.Tertiary
+        closePopup.Size = UDim2.new(0, 35, 0, 35)
+        closePopup.Position = UDim2.new(1, -35, 0, 0)
+        closePopup.BackgroundTransparency = 1
         closePopup.Text = "×"
-        closePopup.TextColor3 = Theme.Text
-        closePopup.TextSize = 14
+        closePopup.TextColor3 = Theme.TextDim
+        closePopup.TextSize = 18
         closePopup.Font = Enum.Font.GothamBold
         closePopup.BorderSizePixel = 0
-        closePopup.ZIndex = 51
-        closePopup.Parent = popup
-        
-        Corner(closePopup, 4)
+        closePopup.ZIndex = 52
+        closePopup.Parent = titleBar
         
         closePopup.MouseButton1Click:Connect(function()
             self.ColorPickerOpen = false
             currentPopup = nil
+            TweenPreset(popup, {Size = UDim2.new(0, 0, 0, 0)}, "Fast")
+            task.wait(0.15)
             blocker:Destroy()
             popup:Destroy()
         end)
         
+        closePopup.MouseEnter:Connect(function()
+            TweenPreset(closePopup, {TextColor3 = Color3.fromRGB(255, 80, 80)}, "Fast")
+        end)
+        
+        closePopup.MouseLeave:Connect(function()
+            TweenPreset(closePopup, {TextColor3 = Theme.TextDim}, "Fast")
+        end)
+        
+        -- Preview
         local preview = Instance.new("Frame")
-        preview.Size = UDim2.new(1, -20, 0, 35)
-        preview.Position = UDim2.new(0, 10, 0, 40)
+        preview.Size = UDim2.new(1, -24, 0, 50)
+        preview.Position = UDim2.new(0, 12, 0, 45)
         preview.BackgroundColor3 = currentColor
         preview.BorderSizePixel = 0
         preview.ZIndex = 51
         preview.Parent = popup
         
-        Corner(preview, 4)
-        Stroke(preview, Theme.Border, 1)
+        Corner(preview, 6)
+        Stroke(preview, Theme.Border, 2)
         
-        local r = math.floor(currentColor.R * 255)
-        local g = math.floor(currentColor.G * 255)
-        local b = math.floor(currentColor.B * 255)
+        -- Color palette label
+        local paletteLabel = Instance.new("TextLabel")
+        paletteLabel.Size = UDim2.new(1, -24, 0, 20)
+        paletteLabel.Position = UDim2.new(0, 12, 0, 105)
+        paletteLabel.BackgroundTransparency = 1
+        paletteLabel.Text = "Preset Colors"
+        paletteLabel.TextColor3 = Theme.TextDim
+        paletteLabel.TextSize = 11
+        paletteLabel.Font = Enum.Font.GothamBold
+        paletteLabel.TextXAlignment = Enum.TextXAlignment.Left
+        paletteLabel.ZIndex = 51
+        paletteLabel.Parent = popup
         
-        local function updateColor()
-            currentColor = Color3.fromRGB(r, g, b)
-            preview.BackgroundColor3 = currentColor
-            colorBtn.BackgroundColor3 = currentColor
-            if callback then callback(currentColor) end
-        end
+        -- Color palette grid
+        local paletteContainer = Instance.new("Frame")
+        paletteContainer.Size = UDim2.new(1, -24, 0, 160)
+        paletteContainer.Position = UDim2.new(0, 12, 0, 130)
+        paletteContainer.BackgroundTransparency = 1
+        paletteContainer.ZIndex = 51
+        paletteContainer.Parent = popup
         
-        local function createSlider(name, yPos, defaultVal, colorIndex)
-            local sliderLabel = Instance.new("TextLabel")
-            sliderLabel.Size = UDim2.new(0, 15, 0, 16)
-            sliderLabel.Position = UDim2.new(0, 10, 0, yPos)
-            sliderLabel.BackgroundTransparency = 1
-            sliderLabel.Text = name
-            sliderLabel.TextColor3 = Theme.TextDim
-            sliderLabel.TextSize = 11
-            sliderLabel.Font = Enum.Font.GothamBold
-            sliderLabel.ZIndex = 51
-            sliderLabel.Parent = popup
+        local gridLayout = Instance.new("UIGridLayout")
+        gridLayout.CellSize = UDim2.new(0, 32, 0, 32)
+        gridLayout.CellPadding = UDim2.new(0, 4, 0, 4)
+        gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        gridLayout.Parent = paletteContainer
+        
+        for i, rgb in ipairs(presetColors) do
+            local colorSwatch = Instance.new("TextButton")
+            colorSwatch.Size = UDim2.new(0, 32, 0, 32)
+            colorSwatch.BackgroundColor3 = Color3.fromRGB(rgb[1], rgb[2], rgb[3])
+            colorSwatch.Text = ""
+            colorSwatch.BorderSizePixel = 0
+            colorSwatch.ZIndex = 52
+            colorSwatch.LayoutOrder = i
+            colorSwatch.Parent = paletteContainer
             
-            local valueLabel = Instance.new("TextLabel")
-            valueLabel.Size = UDim2.new(0, 30, 0, 16)
-            valueLabel.Position = UDim2.new(1, -35, 0, yPos)
-            valueLabel.BackgroundTransparency = 1
-            valueLabel.Text = tostring(defaultVal)
-            valueLabel.TextColor3 = Theme.TextDim
-            valueLabel.TextSize = 10
-            valueLabel.Font = Enum.Font.Gotham
-            valueLabel.TextXAlignment = Enum.TextXAlignment.Right
-            valueLabel.ZIndex = 51
-            valueLabel.Parent = popup
+            Corner(colorSwatch, 4)
+            Stroke(colorSwatch, Theme.Border, 1)
             
-            local sliderBack = Instance.new("Frame")
-            sliderBack.Size = UDim2.new(1, -90, 0, 4)
-            sliderBack.Position = UDim2.new(0, 30, 0, yPos + 6)
-            sliderBack.BackgroundColor3 = Theme.Tertiary
-            sliderBack.BorderSizePixel = 0
-            sliderBack.ZIndex = 51
-            sliderBack.Parent = popup
-            
-            Corner(sliderBack, 2)
-            
-            local sliderFill = Instance.new("Frame")
-            sliderFill.Size = UDim2.new(defaultVal / 255, 0, 1, 0)
-            sliderFill.BackgroundColor3 = Theme.Accent
-            sliderFill.BorderSizePixel = 0
-            sliderFill.ZIndex = 51
-            sliderFill.Parent = sliderBack
-            
-            Corner(sliderFill, 2)
-            
-            local sliderBtn = Instance.new("TextButton")
-            sliderBtn.Size = UDim2.new(0, 10, 0, 10)
-            sliderBtn.AnchorPoint = Vector2.new(0.5, 0.5)
-            sliderBtn.Position = UDim2.new(defaultVal / 255, 0, 0.5, 0)
-            sliderBtn.BackgroundColor3 = Theme.Accent
-            sliderBtn.Text = ""
-            sliderBtn.BorderSizePixel = 0
-            sliderBtn.ZIndex = 52
-            sliderBtn.Parent = sliderBack
-            
-            Corner(sliderBtn, 5)
-            
-            local dragging = false
-            
-            local function update(input)
-                local pos = math.clamp((input.Position.X - sliderBack.AbsolutePosition.X) / sliderBack.AbsoluteSize.X, 0, 1)
-                local value = math.floor(pos * 255)
+            colorSwatch.MouseButton1Click:Connect(function()
+                currentColor = Color3.fromRGB(rgb[1], rgb[2], rgb[3])
+                preview.BackgroundColor3 = currentColor
+                colorBtn.BackgroundColor3 = currentColor
+                if callback then callback(currentColor) end
                 
-                if colorIndex == 1 then r = value
-                elseif colorIndex == 2 then g = value
-                else b = value end
-                
-                sliderFill.Size = UDim2.new(pos, 0, 1, 0)
-                sliderBtn.Position = UDim2.new(pos, 0, 0.5, 0)
-                valueLabel.Text = tostring(value)
-                updateColor()
-            end
+                -- Visual feedback
+                TweenPreset(colorSwatch, {Size = UDim2.new(0, 28, 0, 28)}, "Instant")
+                task.wait(0.1)
+                TweenPreset(colorSwatch, {Size = UDim2.new(0, 32, 0, 32)}, "Bounce")
+            end)
             
-            sliderBtn.MouseButton1Down:Connect(function() dragging = true end)
-            UserInputService.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+            colorSwatch.MouseEnter:Connect(function()
+                TweenPreset(colorSwatch, {Size = UDim2.new(0, 34, 0, 34)}, "Fast")
             end)
-            UserInputService.InputChanged:Connect(function(input)
-                if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then update(input) end
-            end)
-            sliderBack.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then update(input) end
+            
+            colorSwatch.MouseLeave:Connect(function()
+                TweenPreset(colorSwatch, {Size = UDim2.new(0, 32, 0, 32)}, "Fast")
             end)
         end
         
-        createSlider("R", 85, r, 1)
-        createSlider("G", 115, g, 2)
-        createSlider("B", 145, b, 3)
+        -- Custom color label
+        local customLabel = Instance.new("TextLabel")
+        customLabel.Size = UDim2.new(1, -24, 0, 20)
+        customLabel.Position = UDim2.new(0, 12, 0, 300)
+        customLabel.BackgroundTransparency = 1
+        customLabel.Text = "Custom Color (RGB)"
+        customLabel.TextColor3 = Theme.TextDim
+        customLabel.TextSize = 11
+        customLabel.Font = Enum.Font.GothamBold
+        customLabel.TextXAlignment = Enum.TextXAlignment.Left
+        customLabel.ZIndex = 51
+        customLabel.Parent = popup
+        
+        -- RGB input button
+        local rgbButton = Instance.new("TextButton")
+        rgbButton.Size = UDim2.new(1, -24, 0, 28)
+        rgbButton.Position = UDim2.new(0, 12, 0, 325)
+        rgbButton.BackgroundColor3 = Theme.Secondary
+        rgbButton.Text = string.format("R:%d G:%d B:%d", 
+            math.floor(currentColor.R * 255),
+            math.floor(currentColor.G * 255),
+            math.floor(currentColor.B * 255))
+        rgbButton.TextColor3 = Theme.Text
+        rgbButton.TextSize = 11
+        rgbButton.Font = Enum.Font.GothamMedium
+        rgbButton.BorderSizePixel = 0
+        rgbButton.ZIndex = 51
+        rgbButton.Parent = popup
+        
+        Corner(rgbButton, 4)
+        Stroke(rgbButton, Theme.Border, 1)
         
         popup.Size = UDim2.new(0, 0, 0, 0)
-        TweenPreset(popup, {Size = UDim2.new(0, 250, 0, 180)}, "Bounce")
+        TweenPreset(popup, {Size = UDim2.new(0, 320, 0, 360)}, "Bounce")
     end)
     
     return frame
